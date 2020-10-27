@@ -139,6 +139,39 @@ router.post("/", async function(req,res){
     }
 });
 
+// Oct 26,2020 - Get Today Gps Location  
+router.post("/getTodayLocation" , async function(req,res,next){
+    let toDayDate = new Date();
+    // toDayDate.setDate(25);
+    // console.log(toDayDate);
+    let toDayDateInString = toDayDate.toISOString().split("T")[0];
+    // var subcompanylocation = await subcompanylocationSchema.find();
+    try {
+        let empLocationData = await gpstrackingSchema.find({ Date : toDayDateInString });
+        // for(var empIndex = 0;empIndex<empLocationData.length;empIndex++){
+        //     var distance = 10000;
+        //     var emplat = empLocationData[empIndex].Latitude;
+        //     emplng = empLocationData[empIndex].Longitude;
+        //     for(var compIndex = 0;compIndex<subcompanylocation.length;compIndex++){
+        //         var tempdistance = 0;
+        //         var complat = subcompanylocation[compIndex].Latitude ,complng = subcompanylocation[compIndex].Longitude,name =  subcompanylocation[compIndex].Name ;
+        //         tempdistance = calculatelocation(name,complat,complng,emplat,emplng);
+        //         if(distance>tempdistance && tempdistance>=0){
+        //             distance=tempdistance;
+        //             empLocationData[empIndex]={"Name":name,"Time":empLocationData[empIndex].Time,"Latitude":empLocationData[empIndex].Latitude,"Longitude":empLocationData[empIndex].Longitude,"Distance":distance};
+        //         }
+        //     }
+        // }
+        console.log(empLocationData);
+        if(empLocationData.length == 0){
+            res.status(200).json({ isSuccess : true , Message : "No Today Data Found" , Data : empLocationData });
+        }else{
+            res.status(200).json({ isSuccess : true , Message : "Data Found" , Data : empLocationData });
+        }   
+    } catch (error) {
+        res.status(500).json({ isSuccess : false , Message : error.message});
+    }
+});
 
 setInterval(gpstrack,1800000); //setinterval for server
 //setInterval(gpstrack,60000);  //setinterval for localhost

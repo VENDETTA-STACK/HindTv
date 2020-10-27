@@ -5,6 +5,8 @@ var memoSchema = require("../models/memo.model");
 var adminSchema = require("../models/admin.model");
 const mongoose = require("mongoose");
 const { populate } = require("../models/memo.model");
+var moment = require("moment-timezone");
+var momentNew = require('moment');
 /*Importing Modules */
 
 /* Post request for memo
@@ -16,12 +18,20 @@ const { populate } = require("../models/memo.model");
 */
 router.post("/", async (req, res) => {
   if (req.body.type == "singlememo") {
+    //let mytoday = new Date();
+    let todayDate = moment()
+    .tz("Asia/Calcutta")
+    .format("DD MM YYYY, h:mm:ss a")
+    .split(",")[0];
+    todayDate = todayDate.split(" ");
+    todayDate = todayDate[0] + "/" + todayDate[1] + "/" + todayDate[2];
+    
     memoSchema.find(
       {
         Eid: req.body.id,
         Date: {
-          $gte: req.body.startdate,
-          $lte: req.body.enddate,
+          $gte : req.body.startdate,
+          $lte : req.body.enddate
         },
       },
       async (err, record) => {
@@ -256,6 +266,22 @@ router.post("/", async (req, res) => {
       }
       res.json(result);
     })
+  }
+});
+
+router.post("/checkMemo" , async function(req,res,next){
+  const { id } = req.body;
+
+  try {
+    let memoDataOfEmp = await memoSchema.find({ _id : id });
+    console.log(memoDataOfEmp);
+    if(memoDataOfEmp.length == 1){
+      res.status(200).json({ isSuccess : true , Data : 1 , Message : "Memo Exist...!!!" });
+    }else{
+      res.status(400).json({ isSuccess : true , Data : 0 , Message : "Memo Not Exist...!!!" });
+    }
+  } catch (error) {
+    res.status(500).json({ isSuccess : false , Message : error.message });
   }
 });
 
