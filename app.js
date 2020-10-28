@@ -32,6 +32,7 @@ var defineleaveRouter = require("./routes/defineleave");
 var dashboardRouter = require("./routes/dashboard");
 var gpstrackRouter = require("./routes/gpstracking");
 var subcompanylocationRouter = require("./routes/subcompanylocation");
+var apkDataRouter = require("./routes/apkData");
 // tnd 
 // var tndindexRouter = require("./routes/tnd");
 // var tndpersonRouter = require("./routes/tnd1");
@@ -98,6 +99,7 @@ app.use("/api/defineleave",defineleaveRouter);
 app.use("/api/dashboard",dashboardRouter);
 app.use("/api/gpstracking",gpstrackRouter);
 app.use("/api/subcompnaylocation",subcompanylocationRouter);
+app.use("/api/apkdetails",apkDataRouter);
 // tnd 
 // app.use('/api/tnd/tnd', tndindexRouter);
 // app.use('/api/tnd/tnd_login', tndpersonRouter);
