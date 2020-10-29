@@ -1666,14 +1666,18 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
       //   "Memo": true,
       //   "Message":"Attendance Marked and Memo Issued."};
       record = {
-        "MemoExistStatus" : true
+        "MemoExistStatus" : true,
+        "Date" : period.date,
+        "Time" : period.time
       }
       result.Data = [record];
       result.isSuccess = true;
       }else{
         result.Message = "Memo not exist";
         record = {
-          "MemoExistStatus" : false
+          "MemoExistStatus" : false,
+          "Date" : period.date,
+          "Time" : period.time
         }
         result.Data = [record];
         result.isSuccess = true;
