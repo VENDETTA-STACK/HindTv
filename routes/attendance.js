@@ -1603,15 +1603,16 @@ else if (req.body.type == "out") {
 });
 
 router.post("/memoExist" , async function(req,res,next){
-  // const { id } = req.body;
+  console.log("csdcds");
   period = getdate();
+  console.log(period.date);
   try {
-    let memoDataOfEmp = await memoSchema.find({ Eid:req.body.employeeid,Date: period.date,Type:"in" });
-    console.log(memoDataOfEmp);
-    if(memoDataOfEmp.length == 1){
-      res.status(200).json({ isSuccess : true , Data : 1 , Message : "Memo Exist...!!!" });
+    let memoDataOfEmp = await memoSchema.find({ Date: "30/10/2020" });
+    //console.log(memoDataOfEmp);
+    if(memoDataOfEmp){
+      res.status(200).json({ isSuccess : true , Data : memoDataOfEmp , Message : "Memos Found...!!!" });
     }else{
-      res.status(400).json({ isSuccess : true , Data : 0 , Message : "Memo Not Exist...!!!" });
+      res.status(400).json({ isSuccess : true , Data : 0 , Message : "No Memos for Today...!!!" });
     }
   } catch (error) {
     res.status(500).json({ isSuccess : false , Message : error.message });
