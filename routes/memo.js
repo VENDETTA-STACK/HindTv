@@ -269,21 +269,21 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.post("/checkMemo" , async function(req,res,next){
-  const { id } = req.body;
+// router.post("/checkMemo" , async function(req,res,next){
+//   const { id } = req.body;
 
-  try {
-    let memoDataOfEmp = await memoSchema.find({ _id : id });
-    console.log(memoDataOfEmp);
-    if(memoDataOfEmp.length == 1){
-      res.status(200).json({ isSuccess : true , Data : 1 , Message : "Memo Exist...!!!" });
-    }else{
-      res.status(400).json({ isSuccess : true , Data : 0 , Message : "Memo Not Exist...!!!" });
-    }
-  } catch (error) {
-    res.status(500).json({ isSuccess : false , Message : error.message });
-  }
-});
+//   try {
+//     let memoDataOfEmp = await memoSchema.find({ _id : id });
+//     console.log(memoDataOfEmp);
+//     if(memoDataOfEmp.length == 1){
+//       res.status(200).json({ isSuccess : true , Data : 1 , Message : "Memo Exist...!!!" });
+//     }else{
+//       res.status(400).json({ isSuccess : true , Data : 0 , Message : "Memo Not Exist...!!!" });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ isSuccess : false , Message : error.message });
+//   }
+// });
 
 async function checkpermission(type, token) {
   var result = {};

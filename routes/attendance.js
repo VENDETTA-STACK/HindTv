@@ -1607,7 +1607,15 @@ router.post("/memoExist" , async function(req,res,next){
   period = getdate();
   console.log(period.date);
   try {
-    let memoDataOfEmp = await memoSchema.find({ Date: "30/10/2020" });
+    let memoDataOfEmp = await memoSchema.find({ Date: "30/10/2020" })
+                                        .populate({
+                                          path:"Eid",
+                                          select:"Name",
+                                          populate:{
+                                            path:"SubCompany",
+                                            select: "Name"
+                                          }
+                                        });
     //console.log(memoDataOfEmp);
     if(memoDataOfEmp){
       res.status(200).json({ isSuccess : true , Data : memoDataOfEmp , Message : "Memos Found...!!!" });
