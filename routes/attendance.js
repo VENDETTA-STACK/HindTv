@@ -1620,7 +1620,7 @@ router.post("/memoExist" , async function(req,res,next){
 
 router.post("/checkMemo" , upload.single("attendance") , async function(req,res,next){
   period = getdate();
-  
+  let empData = req.body.employeeid;
   var checkin = await attendeanceSchema.find({EmployeeId:req.body.employeeid,Date:period.date,Status:"in"});
   if(checkin.length == 1){
     var result = {};
@@ -1629,17 +1629,18 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
     result.isSuccess = false;
     res.json(result);
   } else {
-    var longlat = await employeeSchema // Fetching employee data with employeeid
-    .findById(req.body.employeeid)
-    .populate({
-      path:"SubCompany",
-        select:"Name LocationId",
-        populate : {
-          path:"LocationId",
-          select:"Latitude Longitude"
-        }
-    })
-    .populate("Timing");
+    var longlat = await employeeSchema
+        .findById(req.body.employeeid)
+        .populate({
+          path:"SubCompany",
+          select:"Name LocationId",
+          populate : {
+            path:"LocationId",
+            select:"Latitude Longitude"
+          }
+        })
+        .populate("Timing");
+    console.log(longlat);
 
     var memoIsExist = await entrymemo(
               req.body.employeeid,
@@ -1647,42 +1648,44 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
               longlat.SubCompany.BufferTime,
               period
             );
-      console.log(memoIsExist);
-    if(memoIsExist.length == 1){
-      result.Message = "Attendance Marked and Memo Issued.";
-      // record = {
-      //   "_id":record._id,
-      //   "EmployeeId":record.EmployeeId,
-      //   "Status": record.Status,
-      //   "Date": record.Date,
-      //   "Time": record.Time,
-      //   "Day": record.Day,
-      //   "Image":record.Image,
-      //   "Area":record.Area,
-      //   "Elat":record.Elat,
-      //   "Elong":record.Elong,
-      //   "Distance":record.Distance,
-      //   "AttendanceType":record.AttendanceType,
-      //   "Memo": true,
-      //   "Message":"Attendance Marked and Memo Issued."};
-      record = {
-        "MemoExistStatus" : true,
-        "Date" : period.date,
-        "Time" : period.time
-      }
-      result.Data = [record];
-      result.isSuccess = true;
-      }else{
-        result.Message = "Memo not exist";
+      // console.log(memoIsExist);
+      if(memoIsExist.length == 1){
+        result.Message = "Attendance Marked and Memo Issued.";
+        // record = {
+        //   "_id":record._id,
+        //   "EmployeeId":record.EmployeeId,
+        //   "Status": record.Status,
+        //   "Date": record.Date,
+        //   "Time": record.Time,
+        //   "Day": record.Day,
+        //   "Image":record.Image,
+        //   "Area":record.Area,
+        //   "Elat":record.Elat,
+        //   "Elong":record.Elong,
+        //   "Distance":record.Distance,
+        //   "AttendanceType":record.AttendanceType,
+        //   "Memo": true,
+        //   "Message":"Attendance Marked and Memo Issued."};
         record = {
-          "MemoExistStatus" : false,
+          "MemoExistStatus" : true,
           "Date" : period.date,
           "Time" : period.time
         }
         result.Data = [record];
         result.isSuccess = true;
-      }
-    }  
+        }else{
+          record = {
+            "MemoExistStatus" : false,
+            "Date" : period.date,
+            "Time" : period.time
+          }
+          res.status(200).json({
+            Message : "Memo not exist",
+            Data : record,
+            isSuccess : true
+          });
+        }
+  }  
 
 });
 
