@@ -1688,7 +1688,7 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
           }
           res.status(200).json({
             Message : "Memo not exist",
-            Data : record,
+            Data : [record],
             isSuccess : true
           });
         }
