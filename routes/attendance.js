@@ -1604,8 +1604,12 @@ else if (req.body.type == "out") {
 
 router.post("/memoExist" , async function(req,res,next){
   period = getdate();
+  // console.log(period.date);
+  var ToDay = period.date;
+  // console.log(ToDay);
+  
   try {
-    let memoDataOfEmp = await memoSchema.find({ Date: "30/10/2020" })
+    let memoDataOfEmp = await memoSchema.find({ Date: ToDay })
                                         .populate({
                                           path:"Eid",
                                           select:"Name",
