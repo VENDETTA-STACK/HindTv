@@ -3,6 +3,7 @@ var express = require("express");
 var router = express.Router();
 var employeeSchema = require("../models/employee.model");
 var adminSchema = require("../models/admin.model");
+const { json } = require("express");
 /*Importing Modules */
 
 /* Post request for login
@@ -94,6 +95,22 @@ router.post("/", async function (req, res, next) {
     
   }
   
+});
+
+router.post("/getName/:id" , async function(req,res,next){
+  var idName = req.params.id;
+  try {
+    var record = await employeeSchema.find({ _id : idName });
+    // console.log(record[Name]);
+    // console.log(myData);
+    if(record.length == 1){
+      res.status(200).json({ isSuccess : true , Data : [{ Name : record[0].Name}] , Message : "User Name Found" });
+    }else{
+      res.status(400).json({ isSuccess : true , Data : 0 , Message : "User Name Not Found" });
+    }
+  } catch (error) {
+    res.status(500).json({ isSuccess : false , Message : error.message });
+  }
 });
 
 module.exports = router;
