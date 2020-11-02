@@ -1660,8 +1660,14 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
               period
             );
       // console.log(memoIsExist);
-      if(memoIsExist.length == 1){
-        result.Message = "Attendance Marked and Memo Issued.";
+      if(memoIsExist){
+        record = {
+          "MemoExistStatus" : true,
+          "Date" : period.date,
+          "Time" : period.time
+        }
+        res.status(200).json({ isSuccess : true , Message : "Memo Found" , Data : [record] });
+        // result.Message = "Attendance Marked and Memo Issued.";
         // record = {
         //   "_id":record._id,
         //   "EmployeeId":record.EmployeeId,
@@ -1677,13 +1683,9 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
         //   "AttendanceType":record.AttendanceType,
         //   "Memo": true,
         //   "Message":"Attendance Marked and Memo Issued."};
-        record = {
-          "MemoExistStatus" : true,
-          "Date" : period.date,
-          "Time" : period.time
-        }
-        result.Data = [record];
-        result.isSuccess = true;
+        
+        // result.Data = [record];
+        // result.isSuccess = true;
         }else{
           record = {
             "MemoExistStatus" : false,
