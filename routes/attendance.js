@@ -1630,62 +1630,44 @@ router.post("/memoExist" , async function(req,res,next){
 });
 
 router.post("/checkMemo" , upload.single("attendance") , async function(req,res,next){
-  period = getdate();
-  let empData = req.body.employeeid;
-  var checkin = await attendeanceSchema.find({EmployeeId:req.body.employeeid,Date:period.date,Status:"in"});
-  if(checkin.length == 1){
-    var result = {};
-    result.Message = "You are already Perform Attendance."
-    result.Data = checkin;
-    result.isSuccess = false;
-    res.json(result);
-  } else {
-    var longlat = await employeeSchema
-        .findById(req.body.employeeid)
-        .populate({
-          path:"SubCompany",
-          select:"Name LocationId",
-          populate : {
-            path:"LocationId",
-            select:"Latitude Longitude"
-          }
-        })
-        .populate("Timing");
-    console.log(longlat);
+  if(req.body.Status == "in"){
+    period = getdate();
+    let empData = req.body.employeeid;
+    var checkin = await attendeanceSchema.find({EmployeeId:req.body.employeeid,Date:period.date,Status:"in"});
+    if(checkin.length == 1){
+      var result = {};
+      result.Message = "You are already Perform Attendance."
+      result.Data = checkin;
+      result.isSuccess = false;
+      res.json(result);
+    } else {
+      var longlat = await employeeSchema
+          .findById(req.body.employeeid)
+          .populate({
+            path:"SubCompany",
+            select:"Name LocationId",
+            populate : {
+              path:"LocationId",
+              select:"Latitude Longitude"
+            }
+          })
+          .populate("Timing");
+      //console.log(longlat);
 
-    var memoIsExist = await entrymemo(
+      var memoInExist = await entrymemo(
               req.body.employeeid,
               longlat.Timing.StartTime,
               longlat.SubCompany.BufferTime,
               period
             );
-      // console.log(memoIsExist);
-      if(memoIsExist){
+      // console.log(memoInExist);
+      if(memoInExist){
         record = {
           "MemoExistStatus" : true,
           "Date" : period.date,
           "Time" : period.time
         }
         res.status(200).json({ isSuccess : true , Message : "Memo Found" , Data : [record] });
-        // result.Message = "Attendance Marked and Memo Issued.";
-        // record = {
-        //   "_id":record._id,
-        //   "EmployeeId":record.EmployeeId,
-        //   "Status": record.Status,
-        //   "Date": record.Date,
-        //   "Time": record.Time,
-        //   "Day": record.Day,
-        //   "Image":record.Image,
-        //   "Area":record.Area,
-        //   "Elat":record.Elat,
-        //   "Elong":record.Elong,
-        //   "Distance":record.Distance,
-        //   "AttendanceType":record.AttendanceType,
-        //   "Memo": true,
-        //   "Message":"Attendance Marked and Memo Issued."};
-        
-        // result.Data = [record];
-        // result.isSuccess = true;
         }else{
           record = {
             "MemoExistStatus" : false,
@@ -1698,7 +1680,61 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
             isSuccess : true
           });
         }
-  }  
+    }
+  }else if(req.body.Status == "out"){
+    period = getdate();
+    let empData = req.body.employeeid;
+    var checkin = await attendeanceSchema.find({EmployeeId:req.body.employeeid,Date:period.date,Status:"out"});
+    if(checkin.length == 1){
+      var result = {};
+      result.Message = "You are already Perform Attendance."
+      result.Data = checkin;
+      result.isSuccess = false;
+      res.json(result);
+    } else {
+      var longlat = await employeeSchema
+          .findById(req.body.employeeid)
+          .populate({
+            path:"SubCompany",
+            select:"Name LocationId",
+            populate : {
+              path:"LocationId",
+              select:"Latitude Longitude"
+            }
+          })
+          .populate("Timing");
+      //console.log(longlat);
+
+      var memoOutExist = await exitmemo(
+                req.body.employeeid,
+                longlat.Timing.StartTime,
+                longlat.SubCompany.BufferTime,
+                period
+              );
+      // console.log(memoOutExist);
+      if(memoOutExist){
+        record = {
+          "MemoExistStatus" : true,
+          "Date" : period.date,
+          "Time" : period.time
+        }
+        res.status(200).json({ isSuccess : true , Message : "Memo Found" , Data : [record] });
+        }else{
+          record = {
+            "MemoExistStatus" : false,
+            "Date" : period.date,
+            "Time" : period.time
+          }
+          res.status(200).json({
+            Message : "Memo not exist",
+            Data : [record],
+            isSuccess : true
+          });
+        }
+    }
+  }else{
+    res.status(500).json({ isSuccess : false , Message : "Please Provide Duty Status" })
+  }
 
 });
 
