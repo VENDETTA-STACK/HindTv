@@ -74,7 +74,46 @@ function getdate() {
 /*Fetching date*/
 
 /*Calculating whether entry memo should created for late attendance*/
-async function entrymemo(id, timing, buffertime, period) {
+// async function entrymemo(id, timing, buffertime, period) {
+//   var message;
+//   // if(buffertime==undefined || buffertime==null){
+//   //   buffertime = 0
+//   //   .add(buffertime, "m");
+//   // }
+//   var startTime = moment(timing, "HH:mm:ss a");
+//   var endTime = moment(period.time, "HH:mm:ss a");
+//   var duration = moment.duration(endTime.diff(startTime));
+//   var hours = parseInt(duration.asHours());
+//   var minutes = parseInt(duration.asMinutes()) - hours * 60;
+//   if (hours > 0 || minutes > 0) {
+//     var date = moment()
+//       .tz("Asia/Calcutta")
+//       .format("DD MM YYYY, h:mm:ss a")
+//       .split(",")[0];
+//     date = date.split(" ");
+//     date = date[0] + "/" + date[1] + "/" + date[2];
+//     var record = memoSchema({
+//       Eid: id,
+//       Date: date,
+//       Hour: hours,
+//       Minutes: minutes,
+//       Type: "in",
+//       Status: false,
+//       ReasonSend: false,
+//     });
+//     record = await record.save();
+//     if (record.length == 1) {
+//       message = 1;
+//     } else {
+//       message = 0;
+//     }
+//   } else {
+//     message = 2;
+//   }
+//   return message;
+// }
+
+async function entrymemo(id, timing, buffertime, period , reason) {
   var message;
   // if(buffertime==undefined || buffertime==null){
   //   buffertime = 0
@@ -92,15 +131,29 @@ async function entrymemo(id, timing, buffertime, period) {
       .split(",")[0];
     date = date.split(" ");
     date = date[0] + "/" + date[1] + "/" + date[2];
-    var record = memoSchema({
-      Eid: id,
-      Date: date,
-      Hour: hours,
-      Minutes: minutes,
-      Type: "in",
-      Status: false,
-      ReasonSend: false,
-    });
+    if(reason){
+      var record = memoSchema({
+        Eid: id,
+        Date: date,
+        Hour: hours,
+        Minutes: minutes,
+        Type: "in",
+        Status: false,
+        ReasonSend: true,
+        Reason: reason,
+      });
+    }else{
+      var record = memoSchema({
+        Eid: id,
+        Date: date,
+        Hour: hours,
+        Minutes: minutes,
+        Type: "in",
+        Status: false,
+        ReasonSend: false,
+      });
+    }
+    
     record = await record.save();
     if (record.length == 1) {
       message = 1;
@@ -112,6 +165,7 @@ async function entrymemo(id, timing, buffertime, period) {
   }
   return message;
 }
+
 /*Calculating whether entry memo should created for late attendance*/
 
 /*Calculating whether exit memo should created for early attendance*/
@@ -1171,6 +1225,7 @@ else if (req.body.type == "out") {
 
         var empWifi = req.body.wifiname;
         var comWifi = longlat.WifiName;
+        var reason = req.body.reason;
         if(empWifi.includes(" ")){
           empWifi = empWifi.split(" ").join("");
         } 
@@ -1179,12 +1234,24 @@ else if (req.body.type == "out") {
         }
               
         if(isEqual(empWifi,comWifi)){
-          var memo = await entrymemo(
-            req.body.employeeid,
-            longlat.Timing.StartTime,
-            longlat.SubCompany.BufferTime,
-            period
-          );
+          var memo;
+          if(reason){
+            memo = await entrymemo(
+              req.body.employeeid,
+              longlat.Timing.StartTime,
+              longlat.SubCompany.BufferTime,
+              period,
+              reason
+            );
+          }else{
+            memo = await entrymemo(
+              req.body.employeeid,
+              longlat.Timing.StartTime,
+              longlat.SubCompany.BufferTime,
+              period
+            );
+          }
+          
           //var memorecord = await checkmemo(req.body.employeeid,period.date,"in");
           var memorecord = await memoSchema.find({Eid:req.body.employeeid,Date: period.date,Type:"in"});  
           attendancetype = "WIFI";
