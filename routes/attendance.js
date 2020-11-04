@@ -1234,7 +1234,7 @@ else if (req.body.type == "out") {
         }
               
         if(isEqual(empWifi,comWifi)){
-          var memo;
+          var memo
           if(reason){
             memo = await entrymemo(
               req.body.employeeid,

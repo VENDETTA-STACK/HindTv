@@ -1,7 +1,8 @@
 var mongoose = require("mongoose");
 
 var apkVersionSchema = mongoose.Schema({
-  apkVersion: String,
+  androidVersion: String,
+  iosVersion: String,
   latestApkUrl: String, 
 });
 
