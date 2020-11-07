@@ -124,6 +124,18 @@ async function entrymemo(id, timing, buffertime, period , reason) {
   var duration = moment.duration(endTime.diff(startTime));
   var hours = parseInt(duration.asHours());
   var minutes = parseInt(duration.asMinutes()) - hours * 60;
+
+  // console.log("----------------startTime---------------------");
+  // console.log(startTime);
+  // console.log("-----------------endTime--------------------");
+  // console.log(endTime);
+  // console.log("-------------------duration------------------");
+  // console.log(duration);
+  // console.log("-----------------hours--------------------");
+  // console.log(hours);
+  // console.log("------------------minutes-------------------");
+  // console.log(minutes);
+  
   if (hours > 0 || minutes > 0) {
     var date = moment()
       .tz("Asia/Calcutta")
@@ -131,31 +143,36 @@ async function entrymemo(id, timing, buffertime, period , reason) {
       .split(",")[0];
     date = date.split(" ");
     date = date[0] + "/" + date[1] + "/" + date[2];
+   
+    var record;
     if(reason){
-      var record = memoSchema({
+      record = memoSchema({
         Eid: id,
         Date: date,
         Hour: hours,
         Minutes: minutes,
         Type: "in",
-        Status: false,
+        Status: true,
         ReasonSend: true,
         Reason: reason,
       });
     }else{
-      var record = memoSchema({
+      record = memoSchema({
         Eid: id,
         Date: date,
         Hour: hours,
         Minutes: minutes,
         Type: "in",
-        Status: false,
+        Status: true,
         ReasonSend: false,
       });
     }
     
     record = await record.save();
-    if (record.length == 1) {
+    // console.log("Record.....................!!!!!!!!!!!!!!!!!!!!!!")
+    // console.log(record)
+    // console.log(record.length);
+    if (record) {
       message = 1;
     } else {
       message = 0;
@@ -163,6 +180,7 @@ async function entrymemo(id, timing, buffertime, period , reason) {
   } else {
     message = 2;
   }
+  // console.log(message);
   return message;
 }
 
@@ -1727,7 +1745,7 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
               longlat.SubCompany.BufferTime,
               period
             );
-      // console.log(memoInExist);
+      console.log(memoInExist);
       if(memoInExist){
         record = {
           "MemoExistStatus" : true,
