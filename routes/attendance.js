@@ -1316,12 +1316,31 @@ else if (req.body.type == "out") {
           }
           res.json(result);
         } else {
-          memo = await entrymemo(
-            req.body.employeeid,
-            longlat.Timing.StartTime,
-            longlat.SubCompany.BufferTime,
-            period
-          );
+          // var memo;
+          if(reason){
+            console.log("-------------------Reasons--(09/11/2020)--------------------------");
+            console.log(reason);
+            memo = await entrymemo(
+              req.body.employeeid,
+              longlat.Timing.StartTime,
+              longlat.SubCompany.BufferTime,
+              period,
+              reason
+            );
+          }else{
+            memo = await entrymemo(
+              req.body.employeeid,
+              longlat.Timing.StartTime,
+              longlat.SubCompany.BufferTime,
+              period
+            );
+          }
+          // memo = await entrymemo(
+          //   req.body.employeeid,
+          //   longlat.Timing.StartTime,
+          //   longlat.SubCompany.BufferTime,
+          //   period
+          // );
           attendancetype = "GPS";
           var memorecord = await memoSchema.find({Eid:req.body.employeeid,Date: period.date,Type:"in"});  
           var record = attendeanceSchema({
@@ -1371,6 +1390,7 @@ else if (req.body.type == "out") {
                 result.Data = [record];
                 result.isSuccess = true;
               }else if(memorecord.length != 0 && record.length != 0) {
+                let memoUpdateData = memoSchema.findByIdAndUpdate(memoId,{reason:reason});
                 result.Message = "Attendance Marked and Memo Issued.";
                 //result.Data = [record];
                 record = {
