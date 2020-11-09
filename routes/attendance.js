@@ -1269,7 +1269,7 @@ else if (req.body.type == "out") {
                 result.Data = [record];
                 result.isSuccess = true;
               }else if(memorecord.length != 0 && record.length != 0) {
-                let memoUpdateData = await memoSchema.findByIdAndUpdate(memoId,{reason:reason});
+                let memoUpdateData = memoSchema.findByIdAndUpdate(memoId,{reason:reason});
                 result.Message = "Attendance Marked and Memo Issued.";
                 record = {
                   "_id":record._id,
