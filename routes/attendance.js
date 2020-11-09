@@ -71,47 +71,6 @@ function getdate() {
   attendance.day = day;
   return attendance;
 }
-/*Fetching date*/
-
-/*Calculating whether entry memo should created for late attendance*/
-// async function entrymemo(id, timing, buffertime, period) {
-//   var message;
-//   // if(buffertime==undefined || buffertime==null){
-//   //   buffertime = 0
-//   //   .add(buffertime, "m");
-//   // }
-//   var startTime = moment(timing, "HH:mm:ss a");
-//   var endTime = moment(period.time, "HH:mm:ss a");
-//   var duration = moment.duration(endTime.diff(startTime));
-//   var hours = parseInt(duration.asHours());
-//   var minutes = parseInt(duration.asMinutes()) - hours * 60;
-//   if (hours > 0 || minutes > 0) {
-//     var date = moment()
-//       .tz("Asia/Calcutta")
-//       .format("DD MM YYYY, h:mm:ss a")
-//       .split(",")[0];
-//     date = date.split(" ");
-//     date = date[0] + "/" + date[1] + "/" + date[2];
-//     var record = memoSchema({
-//       Eid: id,
-//       Date: date,
-//       Hour: hours,
-//       Minutes: minutes,
-//       Type: "in",
-//       Status: false,
-//       ReasonSend: false,
-//     });
-//     record = await record.save();
-//     if (record.length == 1) {
-//       message = 1;
-//     } else {
-//       message = 0;
-//     }
-//   } else {
-//     message = 2;
-//   }
-//   return message;
-// }
 
 async function entrymemo(id, timing, buffertime, period , reason) {
   var message;
@@ -124,17 +83,6 @@ async function entrymemo(id, timing, buffertime, period , reason) {
   var duration = moment.duration(endTime.diff(startTime));
   var hours = parseInt(duration.asHours());
   var minutes = parseInt(duration.asMinutes()) - hours * 60;
-
-  // console.log("----------------startTime---------------------");
-  // console.log(startTime);
-  // console.log("-----------------endTime--------------------");
-  // console.log(endTime);
-  // console.log("-------------------duration------------------");
-  // console.log(duration);
-  // console.log("-----------------hours--------------------");
-  // console.log(hours);
-  // console.log("------------------minutes-------------------");
-  // console.log(minutes);
   
   if (hours > 0 || minutes > 0) {
     var date = moment()
@@ -152,7 +100,7 @@ async function entrymemo(id, timing, buffertime, period , reason) {
         Hour: hours,
         Minutes: minutes,
         Type: "in",
-        Status: true,
+        Status: false,
         ReasonSend: true,
         Reason: reason,
       });
@@ -163,15 +111,13 @@ async function entrymemo(id, timing, buffertime, period , reason) {
         Hour: hours,
         Minutes: minutes,
         Type: "in",
-        Status: true,
+        Status: false,
         ReasonSend: false,
       });
     }
     
     record = await record.save();
-    // console.log("Record.....................!!!!!!!!!!!!!!!!!!!!!!")
-    // console.log(record)
-    // console.log(record.length);
+    
     if (record) {
       message = 1;
     } else {
@@ -1252,8 +1198,10 @@ else if (req.body.type == "out") {
         }
               
         if(isEqual(empWifi,comWifi)){
-          var memo
+          var memo;
           if(reason){
+            console.log("-------------------Reasons----------------------------");
+            console.log(reason);
             memo = await entrymemo(
               req.body.employeeid,
               longlat.Timing.StartTime,
@@ -1271,7 +1219,8 @@ else if (req.body.type == "out") {
           }
           
           //var memorecord = await checkmemo(req.body.employeeid,period.date,"in");
-          var memorecord = await memoSchema.find({Eid:req.body.employeeid,Date: period.date,Type:"in"});  
+          var memorecord = await memoSchema.find({Eid:req.body.employeeid,Date: period.date,Type:"in"});
+          var memoId = memorecord[0]._id;  
           attendancetype = "WIFI";
           var record = attendeanceSchema({
             EmployeeId: req.body.employeeid,
@@ -1320,6 +1269,7 @@ else if (req.body.type == "out") {
                 result.Data = [record];
                 result.isSuccess = true;
               }else if(memorecord.length != 0 && record.length != 0) {
+                let memoUpdateData = await memoSchema.findByIdAndUpdate(memoId,{reason:reason});
                 result.Message = "Attendance Marked and Memo Issued.";
                 record = {
                   "_id":record._id,
