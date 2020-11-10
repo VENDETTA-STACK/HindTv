@@ -1220,7 +1220,9 @@ else if (req.body.type == "out") {
           
           //var memorecord = await checkmemo(req.body.employeeid,period.date,"in");
           var memorecord = await memoSchema.find({Eid:req.body.employeeid,Date: period.date,Type:"in"});
-          var memoId = memorecord[0]._id;  
+          if(memorecord,length == 1){
+            var memoId = memorecord[0]._id;
+          }
           attendancetype = "WIFI";
           var record = attendeanceSchema({
             EmployeeId: req.body.employeeid,
