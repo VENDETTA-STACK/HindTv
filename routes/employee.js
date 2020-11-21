@@ -6,8 +6,12 @@ var subcompanySchema = require("../models/subcompany.models");
 var adminSchema = require("../models/admin.model");
 var timingSchema = require("../models/timing.models");
 var companySchema = require("../models/company.models");
+var attendanceSchema = require("../models/attendance.models");
+var memoSchema = require("../models/memo.model");
+var leaveSchema = require("../models/leave.model");
 var STRING = require('string');
 const multer = require("multer");
+var mongoose = require("mongoose");
 /*Importing Modules */
 
 /*Post request for employee
@@ -793,6 +797,47 @@ router.post("/", upload.fields([{ name:"employeeimage"}, {name:"employeedocument
         result.isSuccess = true;
         }
         res.json(result);
+  }
+});
+
+router.post("/employeeLeave", async function(req,res,next){
+  const { EmpId } = req.body;
+  try {
+    var record = await leaveSchema.find({ 
+                                    EmployeeId: mongoose.Types.ObjectId(EmpId), 
+                                    })
+                                  .populate({
+                                    path: "SubCompany"
+                                  })
+                                  .populate({
+                                    path: "Company"
+                                  })
+                                  .populate({
+                                    path: "Reason"
+                                  });
+    if(record){
+      res.status(200).json({ isSuccess: true , Count: record.length , Data: record , Message: "Data Found" });
+    }else{
+      res.status(400).json({ isSuccess: true , Dsta: 0 , Message: "Not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ isSuccess: false , Message: error.message });
+  }
+});
+
+router.post("/employeeMemo", async function(req,res,next){
+  const { EmpId } = req.body;
+  try {
+    var record = await memoSchema.find({ 
+                                    Eid: mongoose.Types.ObjectId(EmpId), 
+                                    });
+    if(record){
+      res.status(200).json({ isSuccess: true , Count: record.length , Data: record , Message: "Data Found" });
+    }else{
+      res.status(400).json({ isSuccess: true , Dsta: 0 , Message: "Not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ isSuccess: false , Message: error.message });
   }
 });
 

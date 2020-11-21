@@ -11,9 +11,7 @@ var attendanceSchema = require("../models/attendance.models");
 const geolib = require("geolib");
 const { replaceOne, count } = require("../models/gpstracking.model");
 
-
 /*Importing Modules */
-
 
 //localhost:port/api/gpstracking/
 //API for tracking employee in MAP.

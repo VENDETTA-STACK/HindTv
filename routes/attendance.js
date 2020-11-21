@@ -9,6 +9,7 @@ var employeeSchema = require("../models/employee.model");
 var attendeanceSchema = require("../models/attendance.models");
 var memoSchema = require("../models/memo.model");
 var adminSchema = require("../models/admin.model");
+var leaveSchema = require("../models/leave.model");
 const geolib = require("geolib");
 var mongoose = require("mongoose");
 
@@ -91,6 +92,9 @@ async function entrymemo(id, timing, buffertime, period , reason) {
       .split(",")[0];
     date = date.split(" ");
     date = date[0] + "/" + date[1] + "/" + date[2];
+    // console.log("-----------------21/11/2020--------------------------");
+    // let isoDate = new Date(date).toISOString();
+    // console.log(isoDate);
    
     var record;
     if(reason){
@@ -147,6 +151,10 @@ async function exitmemo(id, timing, buffertime, period) {
       .split(",")[0];
     date = date.split(" ");
     date = date[0] + "/" + date[1] + "/" + date[2];
+
+    // console.log("-----------------21/11/2020--------------------------");
+    // let isoDate = new Date(date).toISOString();
+    // console.log(isoDate);
     var record = memoSchema({
       Eid: id,
       Date: date,
@@ -1220,7 +1228,7 @@ else if (req.body.type == "out") {
           
           //var memorecord = await checkmemo(req.body.employeeid,period.date,"in");
           var memorecord = await memoSchema.find({Eid:req.body.employeeid,Date: period.date,Type:"in"});
-          if(memorecord,length == 1){
+          if(memorecord.length == 1){
             var memoId = memorecord[0]._id;
           }
           attendancetype = "WIFI";
@@ -1794,6 +1802,37 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
   }
 
 });
+
+// router.post("/leaveOnMemo" , async function(req,res,next){
+//   let period = getdate();
+//   // console.log(period.date);
+//   const { employeeid , toDate , fromDate , memoLimit } = req.body;
+//   try {
+
+//     var record = await memoSchema.find({
+//                                   Eid: mongoose.Types.ObjectId(employeeid),
+//                                   DateISO: { $gte: toDate, $lte: fromDate },
+//                                 })
+//                                 .populate({
+//                                   path: "Eid",
+//                                   select: "Name",
+//                                 });
+//     if(record.length >= memoLimit ){
+//       var cutLeave = await new leaveSchema({
+//         EmployeeId: employeeid,
+//         ApplyDate: Date.now(),
+//       });
+//     }
+//     // console.log(record);
+//     // if(record){
+//     //   res.status(200).json({ isSuccess: true , Count: record.length , Data: record , Message: "Data Found" });
+//     // }else{
+//     //   res.status(400).json({ isSuccess: true , Dsta: 0 , Message: "Not found" });
+//     // }
+//   } catch (error) {
+//     res.status(500).json({ isSuccess : false , Message : error.message });
+//   }
+// });
 
 //Testing APIs
 

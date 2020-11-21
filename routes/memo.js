@@ -298,4 +298,37 @@ async function checkpermission(type, token) {
   return result;
 }
 
+router.post("/test" , async function(req,res,next){
+  // date = moment("21/11/2020", "DD/MM/YYYY");
+  // date.format();
+  // console.log(date);
+
+  // let mydate = "11/11/2019"
+  // let aa = new Date(mydate).toISOString();
+  // console.log(aa);
+  const { Eid , Date , DateISO, Hour , Minutes , Seconds , Type , Status ,ReasonSend } = req.body;
+  try {
+    // let mydate = req.body.Date;
+    // let isoDate = new Date(mydate).toISOString();
+    // console.log(new Date(mydate).toISOString());
+    var record = await new memoSchema({
+      Eid: Eid,
+      Date: Date,
+      DateISO: DateISO,
+      Hour: Hour,
+      Minutes: Minutes,
+      Seconds: Seconds,
+      Type: Type,
+      Status: Status,
+      ReasonSend: ReasonSend,
+    });
+    if(record){
+      await record.save();
+      res.status(200).json({ isSuccess: true , Message: "Data Added" , Data: [record] });
+    }
+  } catch (error) {
+    res.status(500).json({ isSuccess: false , Message: error.message });
+  }
+});
+
 module.exports = router;

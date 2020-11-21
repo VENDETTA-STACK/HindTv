@@ -7,6 +7,10 @@ var newSchema = mongoose.Schema({
     required: true,
   },
   Date: String,
+  DateISO: {
+    type: Date,
+    default: Date.now()
+  },
   Hour: String,
   Minutes: String,
   Seconds: String,
