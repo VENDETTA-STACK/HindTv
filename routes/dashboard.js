@@ -380,7 +380,7 @@ router.post("/getempdataWeb", async function(req,res,next){
                                             });
     console.log(companyselection[0].accessCompany._id);
     var employeesOfSubCompany = await employeeSchema.find({ SubCompany : companyselection[0].accessCompany._id});
-    // console.log(employeesOfSubCompany);
+    
     var employee_ids = []
     for(var i=0 ; i<employeesOfSubCompany.length ;i++ ){
       employee_ids.push(employeesOfSubCompany[i]._id)
@@ -390,14 +390,23 @@ router.post("/getempdataWeb", async function(req,res,next){
     let checkDate = date[0] + "/" + date[1] + "/" + date[2];
     // console.log(checkDate);
     
-    var record = await attendeanceSchema.find({ Date: checkDate , EmployeeId: { $in: employee_ids } });
+    var attendanceData = await attendeanceSchema.find({ Date: checkDate , EmployeeId: { $in: employee_ids } });
+
+    var leaveData = await leaveSchema.find({ EmployeeId: { $in: employee_ids } });
+
+    var memoData = await memoSchema.find({ Eid : { $in: employee_ids } , Date: checkDate });
+
     let dataSend = {
       "Employees" : employeesOfSubCompany,
-      "Attendance" : record,
+      "Attendance" : attendanceData,
+      "LeaveData" : leaveData,
+      "MemoData" : memoData,
     }
-      if(record){
+      if(dataSend){
         res.status(200).json({ isSuccess: true , EmployeeCount: employeesOfSubCompany.length ,
-            AttendanceCount: record.length , 
+            LeaveCount: leaveData.length,
+            MemoCount: memoData.length,
+            AttendanceCount: attendanceData.length , 
             Data: dataSend , Message: "Attendance Data Found" });
       }else{
         res.status(200).json({ isSuccess: true , Data: 0 , Message: "Attendance Data Not Found" });
