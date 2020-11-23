@@ -389,9 +389,16 @@ router.post("/getempdataWeb", async function(req,res,next){
     // console.log(date);
     let checkDate = date[0] + "/" + date[1] + "/" + date[2];
     // console.log(checkDate);
+    
     var record = await attendeanceSchema.find({ Date: checkDate , EmployeeId: { $in: employee_ids } });
+    let dataSend = {
+      "Employees" : employeesOfSubCompany,
+      "Attendance" : record,
+    }
       if(record){
-        res.status(200).json({ isSuccess: true ,Count: record.length , Data: record , Message: "Attendance Data Found" });
+        res.status(200).json({ isSuccess: true , EmployeeCount: employeesOfSubCompany.length ,
+            AttendanceCount: record.length , 
+            Data: dataSend , Message: "Attendance Data Found" });
       }else{
         res.status(200).json({ isSuccess: true , Data: 0 , Message: "Attendance Data Not Found" });
       }
