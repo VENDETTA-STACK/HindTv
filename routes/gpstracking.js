@@ -10,6 +10,8 @@ var subcompanylocationSchema = require("../models/location.model");
 var attendanceSchema = require("../models/attendance.models");
 const geolib = require("geolib");
 const { replaceOne, count } = require("../models/gpstracking.model");
+var NodeGeocoder = require('node-geocoder');
+const { get } = require("../app");
 
 /*Importing Modules */
 
@@ -107,21 +109,59 @@ router.post("/", async function(req,res){
     */}
     else if(req.body.type == "getdata"){
         var subcompanylocation = await subcompanylocationSchema.find();
+        // console.log(subcompanylocation);
+
+        var options = {
+            provider: 'google',
+            httpAdapter: 'https', // Default
+            apiKey: 'AIzaSyCW-CryHApwFarrX9piqmNKo-E_ZxAlYJU', // for Mapquest, OpenCage, Google Premier
+            formatter: 'json' // 'gpx', 'string', ...
+          };
+           
+        var geoCoder = NodeGeocoder(options);
+        
+
+        async function getLocationName(lat,long){
+
+            var locationNameIs = await geoCoder.reverse({ lat: lat, lon: long });
+            // geoCoder.reverse({lat:lat, lon:long})
+            //     .then((res)=> {
+            //         // console.log(res);
+            //         // console.log(res[0].formattedAddress);
+            //         locationNameIs = res[0].formattedAddress;
+            //     })
+            //     .catch((err)=> {
+            //         console.log(err);
+            //     });
+        
+            // console.log(locationNameIs[0].formattedAddress);
+            return locationNameIs[0].formattedAddress;
+        }
+
+
         var record = await gpstrackingSchema.find({EmployeeId:req.body.employeeid,Date:req.body.date});
         for(var empIndex = 0;empIndex<record.length;empIndex++){
             var distance = 10000;
             var emplat = record[empIndex].Latitude;
             emplng = record[empIndex].Longitude;
+
             for(var compIndex = 0;compIndex<subcompanylocation.length;compIndex++){
                 var tempdistance = 0;
                 var complat = subcompanylocation[compIndex].Latitude ,complng = subcompanylocation[compIndex].Longitude,name =  subcompanylocation[compIndex].Name ;
+                
                 tempdistance = calculatelocation(name,complat,complng,emplat,emplng);
+                //console.log(tempdistance);
                 if(distance>tempdistance && tempdistance>=0){
+                    // console.log("in ifffffffffffffffffffff");
                     distance=tempdistance;
-                    record[empIndex]={"Name":name,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
+
+                    var myLocationNameIs = await getLocationName(emplat,emplng);
+                    // console.log(myLocationNameIs);
+                    record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
                 }
             }
         }
+        // console.log(req.body);
         var result = {};
         if(record.length == 0){
             result.Message="Tracking data is not found.";

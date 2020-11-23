@@ -84,6 +84,9 @@ async function entrymemo(id, timing, buffertime, period , reason) {
   var duration = moment.duration(endTime.diff(startTime));
   var hours = parseInt(duration.asHours());
   var minutes = parseInt(duration.asMinutes()) - hours * 60;
+
+  console.log(hours);
+  console.log(minutes);
   
   if (hours > 0 || minutes > 0) {
     var date = moment()
@@ -108,6 +111,7 @@ async function entrymemo(id, timing, buffertime, period , reason) {
         ReasonSend: true,
         Reason: reason,
       });
+      record = await record.save();
     }else{
       record = memoSchema({
         Eid: id,
@@ -119,8 +123,6 @@ async function entrymemo(id, timing, buffertime, period , reason) {
         ReasonSend: false,
       });
     }
-    
-    record = await record.save();
     
     if (record) {
       message = 1;
@@ -1218,6 +1220,7 @@ else if (req.body.type == "out") {
               reason
             );
           }else{
+            console.log("1");
             memo = await entrymemo(
               req.body.employeeid,
               longlat.Timing.StartTime,
@@ -1338,6 +1341,7 @@ else if (req.body.type == "out") {
               reason
             );
           }else{
+            console.log("1345-2");
             memo = await entrymemo(
               req.body.employeeid,
               longlat.Timing.StartTime,
@@ -1718,7 +1722,7 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
           })
           .populate("Timing");
       //console.log(longlat);
-
+      console.log("1726-3");
       var memoInExist = await entrymemo(
               req.body.employeeid,
               longlat.Timing.StartTime,

@@ -365,4 +365,39 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.post("/getempdataWeb", async function(req,res,next){
+  const { adminId } = req.body;
+  var date = moment()
+      .tz("Asia/Calcutta")
+      .format("DD MM YYYY, h:mm:ss a")
+      .split(",")[0];
+    date = date.split(" ");
+    
+  try {
+    var companyselection = await adminSchema.find({ _id : adminId })
+                                            .populate({
+                                              path: "accessCompany",
+                                            });
+    console.log(companyselection[0].accessCompany._id);
+    var employeesOfSubCompany = await employeeSchema.find({ SubCompany : companyselection[0].accessCompany._id});
+    // console.log(employeesOfSubCompany);
+    var employee_ids = []
+    for(var i=0 ; i<employeesOfSubCompany.length ;i++ ){
+      employee_ids.push(employeesOfSubCompany[i]._id)
+    }
+    // console.log(employee_ids);
+    // console.log(date);
+    let checkDate = date[0] + "/" + date[1] + "/" + date[2];
+    // console.log(checkDate);
+    var record = await attendeanceSchema.find({ Date: checkDate , EmployeeId: { $in: employee_ids } });
+      if(record){
+        res.status(200).json({ isSuccess: true ,Count: record.length , Data: record , Message: "Attendance Data Found" });
+      }else{
+        res.status(200).json({ isSuccess: true , Data: 0 , Message: "Attendance Data Not Found" });
+      }
+  } catch (error) {
+    res.status(500).json({ isSuccess: false , Message: error.message })
+  }
+});
+
 module.exports = router;

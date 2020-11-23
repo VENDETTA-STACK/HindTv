@@ -41,6 +41,7 @@ var apkDataRouter = require("./routes/apkData");
 
 /*Initilizaing the app*/
 var app = express();
+app.use(cors());
 /*Initilizaing the app*/
 
 /*Connecting database with mongodb*/
