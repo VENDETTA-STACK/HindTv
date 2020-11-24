@@ -365,6 +365,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+//Admin WebView---24/11/2020---MONIL
 router.post("/getempdataWeb", async function(req,res,next){
   const { adminId } = req.body;
   var date = moment()
@@ -389,14 +390,21 @@ router.post("/getempdataWeb", async function(req,res,next){
     // console.log(date);
     let checkDate = date[0] + "/" + date[1] + "/" + date[2];
     // console.log(checkDate);
+
+    //Get Admin Name---24/11/2020---MONIL
+    var adminName = await adminSchema.find({ _id: mongoose.Types.ObjectId(adminId) }).select("name");
     
+    //Get Today Attendance---23/11/2020---MONIL
     var attendanceData = await attendeanceSchema.find({ Date: checkDate , EmployeeId: { $in: employee_ids } });
 
+    //Get All Leave---23/11/2020---MONIL
     var leaveData = await leaveSchema.find({ EmployeeId: { $in: employee_ids } });
 
+    //Get Today Memos---23/11/2020---MONIL
     var memoData = await memoSchema.find({ Eid : { $in: employee_ids } , Date: checkDate });
 
     let dataSend = {
+      "AdminName" : adminName,
       "Employees" : employeesOfSubCompany,
       "Attendance" : attendanceData,
       "LeaveData" : leaveData,

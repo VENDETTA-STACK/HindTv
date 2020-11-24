@@ -1730,7 +1730,7 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
               period
             );
       console.log(memoInExist);
-      if(memoInExist){
+      if(memoInExist == 1){
         record = {
           "MemoExistStatus" : true,
           "Date" : period.date,
