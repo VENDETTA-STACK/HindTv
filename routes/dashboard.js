@@ -395,7 +395,14 @@ router.post("/getempdataWeb", async function(req,res,next){
     var adminName = await adminSchema.find({ _id: mongoose.Types.ObjectId(adminId) }).select("name");
     
     //Get Today Attendance---23/11/2020---MONIL
-    var attendanceData = await attendeanceSchema.find({ Date: checkDate , EmployeeId: { $in: employee_ids } });
+    var attendanceData = await attendeanceSchema.find({ 
+                                                      Date: checkDate , 
+                                                      EmployeeId: { $in: employee_ids } 
+                                                    })
+                                                .populate({
+                                                  path: "EmployeeId",
+                                                  select: "Name",
+                                                });
 
     //Get All Leave---23/11/2020---MONIL
     var leaveData = await leaveSchema.find({ EmployeeId: { $in: employee_ids } });
@@ -403,10 +410,21 @@ router.post("/getempdataWeb", async function(req,res,next){
     //Get Today Memos---23/11/2020---MONIL
     var memoData = await memoSchema.find({ Eid : { $in: employee_ids } , Date: checkDate });
 
+    //Get Today Absent list ---24/11/2020----MONIL
+    var absentData = await attendeanceSchema.find({ 
+                                                  Date: checkDate, 
+                                                  EmployeeId: { $nin: employee_ids } 
+                                                })
+                                                .populate({
+                                                  path: "EmployeeId",
+                                                  select: "Name",
+                                                });
+
     let dataSend = {
       "AdminName" : adminName,
       "Employees" : employeesOfSubCompany,
       "Attendance" : attendanceData,
+      "Absent" : absentData,
       "LeaveData" : leaveData,
       "MemoData" : memoData,
     }
@@ -414,7 +432,8 @@ router.post("/getempdataWeb", async function(req,res,next){
         res.status(200).json({ isSuccess: true , EmployeeCount: employeesOfSubCompany.length ,
             LeaveCount: leaveData.length,
             MemoCount: memoData.length,
-            AttendanceCount: attendanceData.length , 
+            AttendanceCount: attendanceData.length, 
+            AbsentCount: absentData.length, 
             Data: dataSend , Message: "Attendance Data Found" });
       }else{
         res.status(200).json({ isSuccess: true , Data: 0 , Message: "Attendance Data Not Found" });
