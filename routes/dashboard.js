@@ -384,9 +384,11 @@ router.post("/getempdataWeb", async function(req,res,next){
     
     var employee_ids = []
     for(var i=0 ; i<employeesOfSubCompany.length ;i++ ){
-      employee_ids.push(employeesOfSubCompany[i]._id)
+      // let employeeObjId = mongoose.Types.ObjectId(employeesOfSubCompany[i]._id)
+      employee_ids.push(employeesOfSubCompany[i]._id);
     }
-    // console.log(employee_ids);
+    console.log(employee_ids);
+    console.log(employee_ids.length);
     // console.log(date);
     let checkDate = date[0] + "/" + date[1] + "/" + date[2];
     // console.log(checkDate);
@@ -401,7 +403,7 @@ router.post("/getempdataWeb", async function(req,res,next){
                                                     })
                                                 .populate({
                                                   path: "EmployeeId",
-                                                  select: "Name",
+                                                  select: "Name SubCompany",
                                                 });
 
     //Get All Leave---23/11/2020---MONIL
@@ -411,13 +413,30 @@ router.post("/getempdataWeb", async function(req,res,next){
     var memoData = await memoSchema.find({ Eid : { $in: employee_ids } , Date: checkDate });
 
     //Get Today Absent list ---24/11/2020----MONIL
+    var presetEmployeeId = [];
+    // var temp = [];
+    
+    for(var j=0;j<attendanceData.length;j++){
+      // console.log(attendanceData[j].EmployeeId._id);
+      presetEmployeeId.push(attendanceData[j].EmployeeId._id);
+    }
+    // console.log(presetEmployeeId);
+    // console.log(presetEmployeeId.length);
+    // temp = employee_ids.filter(function(e) {
+    //   let i = presetEmployeeId.indexOf(e)
+    //   return (presetEmployeeId.splice(i, 1), false);
+    // })
+    // console.log(temp.length);
+    // temp = employee_ids.filter( (x) => !presetEmployeeId.includes(x) );
+    // console.log(temp.length);
+    // let absentEmployeeId = 
     var absentData = await attendeanceSchema.find({ 
                                                   Date: checkDate, 
                                                   EmployeeId: { $nin: employee_ids } 
                                                 })
                                                 .populate({
                                                   path: "EmployeeId",
-                                                  select: "Name",
+                                                  select: "Name SubCompany",
                                                 });
 
     let dataSend = {
