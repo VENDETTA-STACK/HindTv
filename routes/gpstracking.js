@@ -121,9 +121,9 @@ router.post("/", async function(req,res){
         var geoCoder = NodeGeocoder(options);
         
 
-        async function getLocationName(lat,long){
+        async function getLocationName(latt,longg){
 
-            var locationNameIs = await geoCoder.reverse({ lat: lat, lon: long });
+            var locationNameIs = await geoCoder.reverse({ lat: latt, lon: longg });
             // geoCoder.reverse({lat:lat, lon:long})
             //     .then((res)=> {
             //         // console.log(res);
@@ -135,15 +135,17 @@ router.post("/", async function(req,res){
             //     });
         
             // console.log(locationNameIs[0].formattedAddress);
+            // console.log(locationNameIs[0].formattedAddress);
+            // console.log([latt,longg]);
             return locationNameIs[0].formattedAddress;
         }
 
 
         var record = await gpstrackingSchema.find({EmployeeId:req.body.employeeid,Date:req.body.date});
         for(var empIndex = 0;empIndex<record.length;empIndex++){
-            var distance = 10000;
-            var emplat = record[empIndex].Latitude;
-            emplng = record[empIndex].Longitude;
+            var distance = 10000000;
+            var emplat = parseFloat(record[empIndex].Latitude);
+            emplng = parseFloat(record[empIndex].Longitude);
 
             for(var compIndex = 0;compIndex<subcompanylocation.length;compIndex++){
                 var tempdistance = 0;
@@ -151,17 +153,15 @@ router.post("/", async function(req,res){
                 
                 tempdistance = calculatelocation(name,complat,complng,emplat,emplng);
                 //console.log(tempdistance);
-                // if(distance>tempdistance && tempdistance>=0){
-                //     // console.log("in ifffffffffffffffffffff");
-                //     distance=tempdistance;
-
-                //     var myLocationNameIs = await getLocationName(emplat,emplng);
-                //     // console.log(myLocationNameIs);
-                //     record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
-                // }else{
-                //     record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
-                // }
-                record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
+                console.log([emplat,emplng]);
+                
+                if(distance>tempdistance && tempdistance>=0){
+                    console.log("in ifffffffffffffffffffff");
+                    distance=tempdistance;
+                    var myLocationNameIs = await getLocationName(emplat,emplng);
+                    
+                    record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
+                }
             }
         }
         // console.log(req.body);
@@ -327,12 +327,15 @@ async function gpstrack(){
             .split(",")[1];
             var date = new Date();
             date = date.toISOString().split("T")[0];
+            // let locationName = await getLocationName(location.latitude,location.longitude);
+            // console.log("hello---------------------------------------------------------");
+            console.log(locationName);
             var record = gpstrackingSchema({
                 EmployeeId:employee[index].EmployeeId,
                 Date:date,
                 Time:time,
                 Latitude:location.latitude,
-                Longitude:location.longitude
+                Longitude:location.longitude,
             });
             record.save({}, function(err,record){
                 var result = {};
