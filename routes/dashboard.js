@@ -387,7 +387,7 @@ router.post("/getempdataWeb", async function(req,res,next){
       // let employeeObjId = mongoose.Types.ObjectId(employeesOfSubCompany[i]._id)
       employee_ids.push(employeesOfSubCompany[i]._id);
     }
-    console.log(employee_ids);
+    // console.log(employee_ids);
     console.log(employee_ids.length);
     // console.log(date);
     let checkDate = date[0] + "/" + date[1] + "/" + date[2];
@@ -414,30 +414,47 @@ router.post("/getempdataWeb", async function(req,res,next){
 
     //Get Today Absent list ---24/11/2020----MONIL
     var presetEmployeeId = [];
-    // var temp = [];
+    var temp = [];
     
     for(var j=0;j<attendanceData.length;j++){
       // console.log(attendanceData[j].EmployeeId._id);
       presetEmployeeId.push(attendanceData[j].EmployeeId._id);
     }
-    // console.log(presetEmployeeId);
-    // console.log(presetEmployeeId.length);
-    // temp = employee_ids.filter(function(e) {
-    //   let i = presetEmployeeId.indexOf(e)
-    //   return (presetEmployeeId.splice(i, 1), false);
-    // })
+    function arrayDiff (a1, a2) {
+      var a = [], diff = [];
+      for (var i = 0; i < a1.length; i++) {
+          a[a1[i]] = true;
+      }
+      for (var i = 0; i < a2.length; i++) {
+          if (a[a2[i]]) {
+              delete a[a2[i]];
+          } else {
+              a[a2[i]] = true;
+          }
+      }
+      for (var k in a) {
+          diff.push(k);
+      }
+      return diff;
+  }
+  
+  // console.log(arrayDiff(employee_ids, presetEmployeeId));//["green", "blue"]
+  console.log(presetEmployeeId.length);
+  temp = arrayDiff(employee_ids,presetEmployeeId);
+  // console.log(temp);
+  console.log(temp.length);
+
     // console.log(temp.length);
     // temp = employee_ids.filter( (x) => !presetEmployeeId.includes(x) );
     // console.log(temp.length);
     // let absentEmployeeId = 
-    var absentData = await attendeanceSchema.find({ 
-                                                  Date: checkDate, 
-                                                  EmployeeId: { $nin: employee_ids } 
-                                                })
-                                                .populate({
-                                                  path: "EmployeeId",
-                                                  select: "Name SubCompany",
-                                                });
+    var absentData = await employeeSchema.find({ _id: { $in : temp} })
+                                         .populate({
+                                           path: "SubCompany"
+                                         })
+                                         .populate({
+                                          path: "CompanyId"
+                                        });
 
     let dataSend = {
       "AdminName" : adminName,

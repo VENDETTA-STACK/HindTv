@@ -1807,36 +1807,100 @@ router.post("/checkMemo" , upload.single("attendance") , async function(req,res,
 
 });
 
-// router.post("/leaveOnMemo" , async function(req,res,next){
-//   let period = getdate();
-//   // console.log(period.date);
-//   const { employeeid , toDate , fromDate , memoLimit } = req.body;
-//   try {
+var getDaysArray = function(start, end) {
+  for(var arr=[],dt=new Date(start); dt<=end; dt.setDate(dt.getDate()+1)){
+      arr.push(new Date(dt));
+  }
+  return arr;
+};
 
-//     var record = await memoSchema.find({
-//                                   Eid: mongoose.Types.ObjectId(employeeid),
-//                                   DateISO: { $gte: toDate, $lte: fromDate },
-//                                 })
-//                                 .populate({
-//                                   path: "Eid",
-//                                   select: "Name",
-//                                 });
-//     if(record.length >= memoLimit ){
-//       var cutLeave = await new leaveSchema({
-//         EmployeeId: employeeid,
-//         ApplyDate: Date.now(),
-//       });
-//     }
-//     // console.log(record);
-//     // if(record){
-//     //   res.status(200).json({ isSuccess: true , Count: record.length , Data: record , Message: "Data Found" });
-//     // }else{
-//     //   res.status(400).json({ isSuccess: true , Dsta: 0 , Message: "Not found" });
-//     // }
-//   } catch (error) {
-//     res.status(500).json({ isSuccess : false , Message : error.message });
-//   }
-// });
+router.post("/leaveOnMemo" , async function(req,res,next){
+  let period = getdate();
+  const { employeeid , toDate , fromDate , memoLimit , workingDay } = req.body;
+  //function to get date of month
+
+  let day1 = toDate.slice(0,2);
+  let month1 = toDate.slice(3,5);
+  let year1 = toDate.slice(6,10);
+
+  let day2 = fromDate.slice(0,2);
+  let month2 = fromDate.slice(3,5);
+  let year2 = fromDate.slice(6,10);
+
+  let date1 = new Date(year1,month1,day1).toISOString();
+  let date2 = new Date(year2,month2,day2).toISOString();
+
+  var daylist = getDaysArray(new Date(date1),new Date(date2));
+  var dateListOfMonth = [];
+
+  console.log(daylist.length);
+  for(var i=0;i<daylist.length;i++){
+    var day = daylist[i].getDate();
+    var month = daylist[i].getMonth();
+    var year = daylist[i].getUTCFullYear();
+    // console.log(day + "/" + month + "/" + year);
+    if(day<10){
+      day = "0" + day;
+    }
+    if(month<10){
+      month = "0" + month;
+    }
+    dateListOfMonth.push(day + "/" + month + "/" + year);
+  }
+  //end of dates;
+  
+  try {
+
+    var memoReport = await memoSchema.find({
+                                  Eid: mongoose.Types.ObjectId(employeeid),
+                                  Date: { $in : dateListOfMonth},
+                                })
+                                .populate({
+                                  path: "Eid",
+                                  select: "Name",
+                                });
+    
+    var employeeAttendance = await attendeanceSchema.find({ 
+                                                      EmployeeId : employeeid,
+                                                      Date: { $in : dateListOfMonth } 
+                                                    });
+                                            
+    // var employeeAbsent = await attendeanceSchema.find({ 
+    //   EmployeeId : employeeid,
+    //   Date: { $nin : dateListOfMonth } 
+    // });
+
+    if(memoReport.length >memoLimit){
+      var overLimitMemoAbsent = 1;
+    }
+
+    var record = {
+      "MemoCount" : memoReport.length,
+      "OverLimitMemoAbsent" : overLimitMemoAbsent,
+      "AttendanceCount" : employeeAttendance.length,
+      "AbsentCount" : workingDay - employeeAttendance.length,
+      "MemoReport" : memoReport,
+      "TotalPresentCount" : employeeAttendance.length - overLimitMemoAbsent,
+      "EmployeeAttendace" : employeeAttendance, 
+      // "EmployeeAbsent" : employeeAbsent, 
+    }
+    // var attendanceCount = emplo
+    // if(record.length >= memoLimit ){
+    //   var cutLeave = await new leaveSchema({
+    //     EmployeeId: employeeid,
+    //     ApplyDate: Date.now(),
+    //   });
+    // }
+    // console.log(record);
+    if(record){
+      res.status(200).json({ isSuccess: true , Count: record.length , Data: record , Message: "Data Found" });
+    }else{
+      res.status(400).json({ isSuccess: true , Dsta: 0 , Message: "Not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ isSuccess : false , Message : error.message });
+  }
+});
 
 //Testing APIs
 

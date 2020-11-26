@@ -151,14 +151,17 @@ router.post("/", async function(req,res){
                 
                 tempdistance = calculatelocation(name,complat,complng,emplat,emplng);
                 //console.log(tempdistance);
-                if(distance>tempdistance && tempdistance>=0){
-                    // console.log("in ifffffffffffffffffffff");
-                    distance=tempdistance;
+                // if(distance>tempdistance && tempdistance>=0){
+                //     // console.log("in ifffffffffffffffffffff");
+                //     distance=tempdistance;
 
-                    var myLocationNameIs = await getLocationName(emplat,emplng);
-                    // console.log(myLocationNameIs);
-                    record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
-                }
+                //     var myLocationNameIs = await getLocationName(emplat,emplng);
+                //     // console.log(myLocationNameIs);
+                //     record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
+                // }else{
+                //     record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
+                // }
+                record[empIndex]={"Name": myLocationNameIs,"Time":record[empIndex].Time,"Latitude":record[empIndex].Latitude,"Longitude":record[empIndex].Longitude,"Distance":distance};
             }
         }
         // console.log(req.body);
