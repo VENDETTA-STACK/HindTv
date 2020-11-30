@@ -1,6 +1,6 @@
 /*Importing Modules */
 var express = require("express");
-const { result, isUndefined } = require("lodash");
+const { result, isUndefined, conforms } = require("lodash");
 var router = express.Router();
 var gpstrackingSchema = require("../models/gpstracking.model");
 var config = require("../config");
@@ -298,6 +298,49 @@ async function locationStatus(EmpId,empdate,lat,lng){
     }
 }
 
+router.post("/getLocation", async function(req,res,next){
+   const { employeeid , lat , long } = req.body;
+   var time = moment()
+            .tz("Asia/Calcutta")
+            .format("DD MM YYYY, h:mm:ss a")
+            .split(",")[1];
+    var date = new Date();
+    date = date.toISOString().split("T")[0];
+    var dateForAttendance = moment()
+    .tz("Asia/Calcutta")
+    .format("DD MM YYYY, h:mm:ss a")
+    .split(",")[0];
+    dateForAttendance = dateForAttendance.split(" ");
+    dateForAttendance = dateForAttendance[0] + "/" + dateForAttendance[1] + "/" + dateForAttendance[2];
+    var employee = await attendanceSchema.find({ 
+                            EmployeeId: employeeid,
+                            Date: dateForAttendance,
+                         });
+    // console.log(employee);
+    try {
+        if(employee.length == 1){
+            var record = await new gpstrackingSchema({
+                EmployeeId:employeeid,
+                Date:date,
+                Time:time,
+                Latitude:lat,
+                Longitude:long,
+            });
+            if(record){
+                record.save();
+                res.status(200).json({ isSuccess: true , Data: record , Message: "New GpsTracking Data Added" });
+            }else{
+                res.status(200).json({ isSuccess: false , Data: 0 , Message: "Data not added" });
+            }
+        }else{
+            res.status(200).json({ isSuccess: false , Data: 0 , Message: "Attendace Not Marked" });
+        }
+    } catch (error) {
+        res.status(500).json({ isSuccess: false , Message: error.message });
+    }
+    
+});
+
 //Working API
 
 async function gpstrack(){
@@ -329,7 +372,7 @@ async function gpstrack(){
             date = date.toISOString().split("T")[0];
             // let locationName = await getLocationName(location.latitude,location.longitude);
             // console.log("hello---------------------------------------------------------");
-            console.log(locationName);
+            // console.log(locationName);
             var record = gpstrackingSchema({
                 EmployeeId:employee[index].EmployeeId,
                 Date:date,

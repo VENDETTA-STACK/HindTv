@@ -367,7 +367,7 @@ router.post("/", async (req, res) => {
 
 //Admin WebView---24/11/2020---MONIL
 router.post("/getempdataWeb", async function(req,res,next){
-  const { adminId } = req.body;
+  const { adminId , SubCompanyId } = req.body;
   var date = moment()
       .tz("Asia/Calcutta")
       .format("DD MM YYYY, h:mm:ss a")
@@ -380,8 +380,13 @@ router.post("/getempdataWeb", async function(req,res,next){
                                               path: "accessCompany",
                                             });
     console.log(companyselection[0].accessCompany._id);
-    var employeesOfSubCompany = await employeeSchema.find({ SubCompany : companyselection[0].accessCompany._id});
+    var employeesOfSubCompany; 
     
+    if(req.body.type == "subCompany"){
+      employeesOfSubCompany = await employeeSchema.find({ SubCompany: SubCompanyId });
+    }else{
+      employeesOfSubCompany = await employeeSchema.find();
+    } 
     var employee_ids = []
     for(var i=0 ; i<employeesOfSubCompany.length ;i++ ){
       // let employeeObjId = mongoose.Types.ObjectId(employeesOfSubCompany[i]._id)
