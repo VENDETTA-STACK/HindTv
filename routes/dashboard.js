@@ -412,10 +412,21 @@ router.post("/getempdataWeb", async function(req,res,next){
                                                 });
 
     //Get All Leave---23/11/2020---MONIL
-    var leaveData = await leaveSchema.find({ EmployeeId: { $in: employee_ids } });
+    var leaveData = await leaveSchema.find({ EmployeeId: { $in: employee_ids } })
+                                     .populate({
+                                       path: "EmployeeId",
+                                       select: "Name SubCompany"
+                                     })
+                                     .populate({
+                                        path: "Reason",
+                                    });
 
     //Get Today Memos---23/11/2020---MONIL
-    var memoData = await memoSchema.find({ Eid : { $in: employee_ids } , Date: checkDate });
+    var memoData = await memoSchema.find({ Eid : { $in: employee_ids } , Date: checkDate })
+                                   .populate({
+                                      path: "Eid",
+                                      select: "Name SubCompany"
+                                   });
 
     //Get Today Absent list ---24/11/2020----MONIL
     var presetEmployeeId = [];
