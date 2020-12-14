@@ -48,6 +48,9 @@ var newSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "company",
     required: true,
+  },
+  fcmToken: {
+    type: String,
   }
 });
 

@@ -367,7 +367,14 @@ router.post("/", async (req, res) => {
 
 //Admin WebView---24/11/2020---MONIL
 router.post("/getempdataWeb", async function(req,res,next){
-  const { adminId , SubCompanyId } = req.body;
+  const { SubCompanyId , adminLoginId } = req.body;
+  let adminIs = await employeeSchema.find({ _id: adminLoginId }).select("Mobile");
+  console.log(adminIs);
+  console.log(adminIs[0].Mobile);
+  let adminTableData = await adminSchema.find({ mobilenumber: adminIs[0].Mobile }).select("mobilenumber");
+  let adminId = adminTableData[0]._id;
+  console.log("admin :" + adminId);
+  console.log("Subc :" + SubCompanyId);
   var date = moment()
       .tz("Asia/Calcutta")
       .format("DD MM YYYY, h:mm:ss a")

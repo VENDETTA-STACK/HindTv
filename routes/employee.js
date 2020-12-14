@@ -12,6 +12,9 @@ var leaveSchema = require("../models/leave.model");
 var STRING = require('string');
 const multer = require("multer");
 var mongoose = require("mongoose");
+const { json } = require("express");
+const cron = require('node-cron');
+const request = require('request')
 /*Importing Modules */
 
 /*Post request for employee
@@ -840,6 +843,72 @@ router.post("/employeeMemo", async function(req,res,next){
     res.status(500).json({ isSuccess: false , Message: error.message });
   }
 });
+
+router.post("/updateFcmToken" , async function(req,res,next){
+  const { empId , fcmToken } = req.body;
+  try {
+    var empData = await employeeSchema.findById(empId);
+    console.log(empData.length);
+    if(empData){
+      let updateFcmToEmp = await employeeSchema.findByIdAndUpdate(empId, { fcmToken: fcmToken });
+      res.status(200).json({ isSuccess: true , Data: 1 , Message: "You Got It" });
+    }else{
+      res.status(200).json({ isSuccess: true , Data: 0 , Message: "Employee Not Found" });
+    }
+    // console.log(empData);
+  } catch (error) {
+    res.status(500).json({ isSuccess: false , Message: error.message });
+  }
+});
+//CRON-JOB -----------------12/12/2020---MONIL
+var task = cron.schedule('0 */2 * * * *', () => {
+  sendNotificationForGPS();
+});
+
+function sendNotificationForGPS(){
+    console.log("yupppppp...........!!!!!!!!!");
+    var payload = {
+        // "title": "Order Alert",
+        // "body": "New Order Alert Found For You.",
+        // "data": {
+        //     "sound": "surprise.mp3",
+        //     "orderid": courierfound[0].orderId.toString(),
+        //     "distance": courierfound[0].distance.toString(),
+        //     "click_action": "FLUTTER_NOTIFICATION_CLICK"
+        // },
+        // "to": courierfound[0].fcmToken
+            "to":"",
+            "priority":"high",
+            "content_available":true,
+            "data": {
+                "sound": "Check",
+                "click_action": "CHECK"
+            },
+            "notification":{
+                        "body": "Hello Bro",
+                        "title":"Check",
+                        "badge":1
+                    }
+    };
+    var options = {
+        'method': 'POST',
+        'url': 'https://fcm.googleapis.com/fcm/send',
+        'headers': {
+            'authorization': 'key=AAAAA0I-7-A:APA91bGFNldrcEnSCIQ-1ijrwPbzjrITduokHMkdySXIwK5YPvV6joy4CJfROV1hCjx7KCAz36_ZAwlOr7qGFVOCoB5phR34lDwTr71wuXf3DLsFrvLzTG3Ur1ghRQVPvUX-cGoCsjZT',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    };
+    request(options, function (error, response ) {
+        if (error) {
+            console.log(error.message);
+        } else {
+            console.log("Sending Notification");
+            console.log(response.body);
+        }
+    });
+}
+
 
 async function checkpermission(type, token) {
   var result = {};

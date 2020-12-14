@@ -277,6 +277,58 @@ setInterval(gpstrack,1800000); //setinterval for server
 //         }
 //     }
 // }
+router.post("/test", async function(req,res,next){
+    try {
+        console.log("Check");
+        sendNotificationForGPS();
+        res.status(200).json({ isSuccess : true });
+    } catch (error) {
+        res.status(500).json({ isSuccess: false , Message: error.message });
+    }
+});
+
+async function sendNotificationForGPS(){
+    var payload = {
+        // "title": "Order Alert",
+        // "body": "New Order Alert Found For You.",
+        // "data": {
+        //     "sound": "surprise.mp3",
+        //     "orderid": courierfound[0].orderId.toString(),
+        //     "distance": courierfound[0].distance.toString(),
+        //     "click_action": "FLUTTER_NOTIFICATION_CLICK"
+        // },
+        // "to": courierfound[0].fcmToken
+            "to":"",
+            "priority":"high",
+            "content_available":true,
+            "data": {
+                "sound": "surprise.mp3",
+                "click_action": "FLUTTER_NOTIFICATION_CLICK"
+            },
+            "notification":{
+                        "body": "Hello Bro",
+                        "title":"Check",
+                        "badge":1
+                    }
+    };
+    var options = {
+        'method': 'POST',
+        'url': 'https://fcm.googleapis.com/fcm/send',
+        'headers': {
+            'authorization': 'key=AAAAA0I-7-A:APA91bGFNldrcEnSCIQ-1ijrwPbzjrITduokHMkdySXIwK5YPvV6joy4CJfROV1hCjx7KCAz36_ZAwlOr7qGFVOCoB5phR34lDwTr71wuXf3DLsFrvLzTG3Ur1ghRQVPvUX-cGoCsjZT',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    };
+    request(options, function (error, response) {
+        if (error) {
+            console.log(error.message);
+        } else {
+            console.log("Sending Notification");
+            console.log(response.body);
+        }
+    });
+}
 
  async function dutyStatus(EmpId,empdate){
     var record =  await attendanceSchema.find({EmployeeId:EmpId,Date:empdate}).select("Status");
