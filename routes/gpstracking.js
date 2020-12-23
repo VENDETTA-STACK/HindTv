@@ -298,7 +298,7 @@ async function sendNotificationForGPS(){
         //     "click_action": "FLUTTER_NOTIFICATION_CLICK"
         // },
         // "to": courierfound[0].fcmToken
-            "to":"",
+            "to":"cKdvF76EQsSjLJhgaamSx8:APA91bELykro3p158yETRF0a1sk-crrnKjoyioucvJqcxn7rIEFgXoo9IsNj4b6im7PsbWD1hEKwJaF7KcgA3Mpr-8-DPvzMHoH55O7yyJ_QgAl4GOgDWXpGlOQDJt4S9LsYI-hCaIqm",
             "priority":"high",
             "content_available":true,
             "data": {
@@ -314,10 +314,8 @@ async function sendNotificationForGPS(){
     var options = {
         'method': 'POST',
         'url': 'https://fcm.googleapis.com/fcm/send',
-        'headers': {
-            'authorization': 'key=AAAAA0I-7-A:APA91bGFNldrcEnSCIQ-1ijrwPbzjrITduokHMkdySXIwK5YPvV6joy4CJfROV1hCjx7KCAz36_ZAwlOr7qGFVOCoB5phR34lDwTr71wuXf3DLsFrvLzTG3Ur1ghRQVPvUX-cGoCsjZT',
-            'Content-Type': 'application/json'
-        },
+        'authorization': 'key=AAAAA0I-7-A:APA91bGFNldrcEnSCIQ-1ijrwPbzjrITduokHMkdySXIwK5YPvV6joy4CJfROV1hCjx7KCAz36_ZAwlOr7qGFVOCoB5phR34lDwTr71wuXf3DLsFrvLzTG3Ur1ghRQVPvUX-cGoCsjZT',
+        'Content-Type': 'application/json',
         body: JSON.stringify(payload)
     };
     request(options, function (error, response) {

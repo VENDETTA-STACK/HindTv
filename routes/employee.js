@@ -847,7 +847,7 @@ router.post("/employeeMemo", async function(req,res,next){
 router.post("/updateFcmToken" , async function(req,res,next){
   const { empId , fcmToken } = req.body;
   try {
-    var empData = await employeeSchema.findById(empId);
+    var empData = await employeeSchema.find({ _id: empId });
     console.log(empData.length);
     if(empData){
       let updateFcmToEmp = await employeeSchema.findByIdAndUpdate(empId, { fcmToken: fcmToken });
@@ -860,24 +860,31 @@ router.post("/updateFcmToken" , async function(req,res,next){
     res.status(500).json({ isSuccess: false , Message: error.message });
   }
 });
+
+// router.post("/test" , async function())
 //CRON-JOB -----------------12/12/2020---MONIL
-var task = cron.schedule('0 */2 * * * *', () => {
-  sendNotificationForGPS();
+var task = cron.schedule('0 */2 * * * *', async () => {
+  // var userData = await employeeSchema.aggregate([
+  //   { $match: { Mobile: "9429828152" } }
+  // ]);
+  var userData = await employeeSchema.find({ "fcmToken" : { $exists : true } });
+  if(userData.length > 0){
+    console.log("yeah in.......!!!");
+    console.log(userData.length);
+    // console.log(userData);
+    for(let i=0;i<userData.length;i++){
+      let fcmTokenIs = userData[i].fcmToken
+      fcmTokenIs = String(fcmTokenIs);
+      console.log(fcmTokenIs);
+      sendNotificationForGPS(fcmTokenIs);  
+    }
+  }
 });
 
-function sendNotificationForGPS(){
+function sendNotificationForGPS(fcm){
     console.log("yupppppp...........!!!!!!!!!");
     var payload = {
-        // "title": "Order Alert",
-        // "body": "New Order Alert Found For You.",
-        // "data": {
-        //     "sound": "surprise.mp3",
-        //     "orderid": courierfound[0].orderId.toString(),
-        //     "distance": courierfound[0].distance.toString(),
-        //     "click_action": "FLUTTER_NOTIFICATION_CLICK"
-        // },
-        // "to": courierfound[0].fcmToken
-            "to":"",
+            "to": fcm,
             "priority":"high",
             "content_available":true,
             "data": {
@@ -885,7 +892,7 @@ function sendNotificationForGPS(){
                 "click_action": "CHECK"
             },
             "notification":{
-                        "body": "Hello Bro",
+                        "body": "Stay Safe , Happy and Workoholic",
                         "title":"Check",
                         "badge":1
                     }
@@ -894,7 +901,7 @@ function sendNotificationForGPS(){
         'method': 'POST',
         'url': 'https://fcm.googleapis.com/fcm/send',
         'headers': {
-            'authorization': 'key=AAAAA0I-7-A:APA91bGFNldrcEnSCIQ-1ijrwPbzjrITduokHMkdySXIwK5YPvV6joy4CJfROV1hCjx7KCAz36_ZAwlOr7qGFVOCoB5phR34lDwTr71wuXf3DLsFrvLzTG3Ur1ghRQVPvUX-cGoCsjZT',
+            'authorization': 'Key=AAAAA0I-7-A:APA91bGFNldrcEnSCIQ-1ijrwPbzjrITduokHMkdySXIwK5YPvV6joy4CJfROV1hCjx7KCAz36_ZAwlOr7qGFVOCoB5phR34lDwTr71wuXf3DLsFrvLzTG3Ur1ghRQVPvUX-cGoCsjZT',
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
