@@ -352,6 +352,31 @@ async function locationStatus(EmpId,empdate,lat,lng){
     }
 }
 
+router.post("/getLastTrackRecord", async function(req,res,next){
+    const { EmployeeId } = req.body;
+    var time = moment()
+            .tz("Asia/Calcutta")
+            .format("DD MM YYYY, h:mm:ss a")
+            .split(",")[1];
+            var date = new Date();
+    date = date.toISOString().split("T")[0];
+    try {
+        let lastRecord = await gpstrackingSchema.find({ EmployeeId: EmployeeId , Date: date })
+                                                .sort({
+                                                    Time : -1
+                                                })
+                                                .limit(1);
+        // console.log(lastRecord);
+        if(lastRecord.length > 0){
+            res.status(200).json({ isSuccess: true , Data: lastRecord , Message: "Last update GPS Found" }); 
+        }else{
+            res.status(200).json({ isSuccess: true , Data: [] , Message: "Last update GPS Not Found" }); 
+        }
+    } catch (error) {
+        res.status(500).json({ isSuccess: false , Message: error.message });
+    }
+  });
+
 router.post("/getLocation", async function(req,res,next){
    const { employeeid , lat , long } = req.body;
    var time = moment()
