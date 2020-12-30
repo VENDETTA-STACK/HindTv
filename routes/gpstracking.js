@@ -214,6 +214,10 @@ router.post("/getTodayLocation" , async function(req,res,next){
     }
 });
 
+// var task = cron.schedule('0 */2 * * * *', async () => {
+//     gpstrack();
+//   });
+
 setInterval(gpstrack,1800000); //setinterval for server
 //setInterval(gpstrack,60000);  //setinterval for localhost
 //setInterval(gpstrack,60000);
@@ -376,11 +380,12 @@ router.post("/getLocation", async function(req,res,next){
                 Latitude:lat,
                 Longitude:long,
             });
+            console.log(record.length);
             if(record){
-                record.save();
+                // record.save();
                 res.status(200).json({ isSuccess: true , Data: record , Message: "New GpsTracking Data Added" });
             }else{
-                res.status(200).json({ isSuccess: false , Data: 0 , Message: "Data not added" });
+                res.status(200).json({ isSuccess: true , Data: 0 , Message: "Data not added" });
             }
         }else{
             res.status(200).json({ isSuccess: false , Data: 0 , Message: "Attendace Not Marked" });
@@ -388,7 +393,6 @@ router.post("/getLocation", async function(req,res,next){
     } catch (error) {
         res.status(500).json({ isSuccess: false , Message: error.message });
     }
-    
 });
 
 //Working API
