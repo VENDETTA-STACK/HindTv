@@ -368,7 +368,7 @@ router.post("/getLastTrackRecord", async function(req,res,next){
                                                     Time : -1
                                                 })
                                                 .limit(1);
-        console.log(lastRecord);
+        // console.log(lastRecord);
         if(lastRecord.length > 0){
             res.status(200).json({ isSuccess: true , Data: lastRecord , Message: "Last update GPS Found" }); 
         }else{
