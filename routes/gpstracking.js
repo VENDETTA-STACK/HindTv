@@ -400,6 +400,14 @@ router.post("/getLocation", async function(req,res,next){
     // console.log(employee);
     try {
         if(employee.length == 1){
+
+            let lastRecord = await gpstrackingSchema.find({ EmployeeId: employeeid , Date: date })
+                                                .sort({
+                                                    Date : -1,
+                                                    Time : -1
+                                                })
+                                                .limit(1);
+
             var record = await new gpstrackingSchema({
                 EmployeeId:employeeid,
                 Date:date,
@@ -407,10 +415,14 @@ router.post("/getLocation", async function(req,res,next){
                 Latitude:lat,
                 Longitude:long,
             });
-            console.log(record.length);
-            if(record){
+            // console.log(record.length);
+            let dataSend = {
+                LastGpsData : lastRecord,
+                NewGpsData : record
+            }
+            if(dataSend){
                 record.save();
-                res.status(200).json({ isSuccess: true , Data: record , Message: "New GpsTracking Data Added" });
+                res.status(200).json({ isSuccess: true , Data: dataSend , Message: "New GpsTracking Data Added" });
             }else{
                 res.status(200).json({ isSuccess: true , Data: 0 , Message: "Data not added" });
             }
