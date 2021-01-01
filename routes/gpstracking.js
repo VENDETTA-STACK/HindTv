@@ -360,13 +360,15 @@ router.post("/getLastTrackRecord", async function(req,res,next){
             .split(",")[1];
             var date = new Date();
     date = date.toISOString().split("T")[0];
+    console.log(date);
     try {
         let lastRecord = await gpstrackingSchema.find({ EmployeeId: EmployeeId , Date: date })
                                                 .sort({
+                                                    Date : -1,
                                                     Time : -1
                                                 })
                                                 .limit(1);
-        // console.log(lastRecord);
+        console.log(lastRecord);
         if(lastRecord.length > 0){
             res.status(200).json({ isSuccess: true , Data: lastRecord , Message: "Last update GPS Found" }); 
         }else{
@@ -407,7 +409,7 @@ router.post("/getLocation", async function(req,res,next){
             });
             console.log(record.length);
             if(record){
-                // record.save();
+                record.save();
                 res.status(200).json({ isSuccess: true , Data: record , Message: "New GpsTracking Data Added" });
             }else{
                 res.status(200).json({ isSuccess: true , Data: 0 , Message: "Data not added" });
