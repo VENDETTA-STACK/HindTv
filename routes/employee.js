@@ -869,13 +869,13 @@ var task = cron.schedule('0 */2 * * * *', async () => {
   // ]);
   var userData = await employeeSchema.find({ "fcmToken" : { $exists : true } });
   if(userData.length > 0){
-    console.log("yeah in.......!!!");
-    console.log(userData.length);
+    // console.log("yeah in.......!!!");
+    // console.log(userData.length);
     // console.log(userData);
     for(let i=0;i<userData.length;i++){
       let fcmTokenIs = userData[i].fcmToken
       fcmTokenIs = String(fcmTokenIs);
-      console.log(fcmTokenIs);
+      // console.log(fcmTokenIs);
       sendNotificationForGPS(fcmTokenIs);  
     }
   }

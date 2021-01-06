@@ -379,6 +379,17 @@ router.post("/getLastTrackRecord", async function(req,res,next){
     }
   });
 
+//Delete Employee All GPS track Data
+router.post("/delGpsData" ,async function(req,res,next){
+    const { eid } = req.body;
+    try {
+        let user = await gpstrackingSchema.deleteMany({EmployeeId : eid});
+        res.status(200).send("Delete");
+    } catch (error) {
+        res.status(500).json({ Message: error.message })
+    }
+});
+
 router.post("/getLocation", async function(req,res,next){
    const { employeeid , lat , long } = req.body;
    var time = moment()
@@ -415,16 +426,35 @@ router.post("/getLocation", async function(req,res,next){
                 Latitude:lat,
                 Longitude:long,
             });
-            // console.log(record.length);
+            let lastLat = parseFloat(lastRecord[0].Latitude);
+            let lastLong = parseFloat(lastRecord[0].Longitude);
+            let newLat = parseFloat(lat);
+            let newLong = parseFloat(long);
+           
+            let distance = calculatelocation("name",newLat,newLong,lastLat,lastLong);
+            // console.log(distance);
             let dataSend = {
                 LastGpsData : lastRecord,
                 NewGpsData : record
             }
-            if(dataSend){
-                record.save();
-                res.status(200).json({ isSuccess: true , Data: dataSend , Message: "New GpsTracking Data Added" });
+            // console.log(record[0].length)
+            if(distance > 25){
+                if(record){
+                    record.save();
+                    res.status(200).json({ 
+                        isSuccess: true , 
+                        Data: dataSend , 
+                        Message: "New GpsTracking Data Added" 
+                    });
+                }else{
+                    res.status(200).json({ 
+                            isSuccess: true , 
+                            Data: 0 , 
+                            Message: "Data not added" 
+                        });
+                }
             }else{
-                res.status(200).json({ isSuccess: true , Data: 0 , Message: "Data not added" });
+                res.status(200).json({ isSuccess: true , Data: 0 , Message: "Distance Not greater than 25meter" });
             }
         }else{
             res.status(200).json({ isSuccess: false , Data: 0 , Message: "Attendace Not Marked" });
