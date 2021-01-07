@@ -218,7 +218,7 @@ router.post("/getTodayLocation" , async function(req,res,next){
 //     gpstrack();
 //   });
 
-setInterval(gpstrack,1800000); //setinterval for server
+// setInterval(gpstrack,1800000); //setinterval for server
 //setInterval(gpstrack,60000);  //setinterval for localhost
 //setInterval(gpstrack,60000);
 //function for fetching lat,lng from firebase & store  in mongodb.
