@@ -411,11 +411,13 @@ router.post("/getLocation", async function(req,res,next){
     // console.log(employee);
     try {
         if(employee.length == 1){
-
-            let lastRecord = await gpstrackingSchema.find({ EmployeeId: employeeid , Date: date })
+            // console.log(date);
+            let getDate = String(date) + "T00:00:00.000Z";
+            let lastRecord = await gpstrackingSchema.find({ EmployeeId: employeeid , Date: getDate })
                                                 .sort({
-                                                    Date : -1,
-                                                    Time : -1
+                                                    // Date : -1,
+                                                    // Time : -1,
+                                                    _id : -1 
                                                 })
                                                 .limit(1);
 
@@ -440,7 +442,7 @@ router.post("/getLocation", async function(req,res,next){
             // console.log(record[0].length)
             if(distance > 25){
                 if(record){
-                    record.save();
+                    // record.save();
                     res.status(200).json({ 
                         isSuccess: true , 
                         Data: dataSend , 
@@ -454,7 +456,7 @@ router.post("/getLocation", async function(req,res,next){
                         });
                 }
             }else{
-                res.status(200).json({ isSuccess: true , Data: 0 , Message: "Distance Not greater than 25meter" });
+                res.status(200).json({ isSuccess: true , Data: lastRecord , Message: "Distance Not greater than 25meter" });
             }
         }else{
             res.status(200).json({ isSuccess: false , Data: 0 , Message: "Attendace Not Marked" });
