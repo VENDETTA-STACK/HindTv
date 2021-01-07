@@ -526,7 +526,8 @@ router.post("/getLocation", async function(req,res,next){
 //             }
 //         }
 //     }
-}
+// }
+
 //Function for finding distance of employee from subcompany
 function calculatelocation(name, lat1, long1, lat2, long2) {
     if (lat1 == 0 || long1 == 0) {
