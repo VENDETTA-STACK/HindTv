@@ -442,7 +442,7 @@ router.post("/getLocation", async function(req,res,next){
             // console.log(record[0].length)
             if(distance > 25){
                 if(record){
-                    // record.save();
+                    record.save();
                     res.status(200).json({ 
                         isSuccess: true , 
                         Data: dataSend , 
