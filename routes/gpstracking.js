@@ -428,11 +428,15 @@ router.post("/getLocation", async function(req,res,next){
                 Latitude : lat,
                 Longitude : long,
             })
+            .sort({
+                _id: -1,
+            })
+            .limit(1);
             console.log("===================================================");
             // console.log(existRecord);
             console.log("Exist Len :"+existRecord.length);
             console.log("===================================================");
-            if(existRecord.length > 0){
+            if(existRecord.length == 1){
                 res.status(200).json({ isSuccess: true , Data: existRecord , Message: "Location not Change"});
             }else{
                 var record = await new gpstrackingSchema({
