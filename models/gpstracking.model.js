@@ -13,6 +13,5 @@ var newSchema = mongoose.Schema({
       Name:String,
 });
 
-
 const admin = mongoose.model("gpstracking", newSchema);
 module.exports = admin;
