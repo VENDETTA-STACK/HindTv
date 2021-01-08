@@ -413,6 +413,7 @@ router.post("/getLocation", async function(req,res,next){
         if(employee.length == 1){
             // console.log(date);
             let getDate = String(date) + "T00:00:00.000Z";
+            // console.log(getDate);
             let lastRecord = await gpstrackingSchema.find({ EmployeeId: employeeid , Date: getDate })
                                                 .sort({
                                                     // Date : -1,
@@ -420,12 +421,17 @@ router.post("/getLocation", async function(req,res,next){
                                                     _id : -1 
                                                 })
                                                 .limit(1);
+
             let existRecord = await gpstrackingSchema.find({
-                EmployeeId:employeeid,
-                Date:getDate,
-                Latitude:lat,
-                Longitude:long,
+                EmployeeId : lastRecord[0].EmployeeId,
+                Date : lastRecord[0].Date,
+                Latitude : lat,
+                Longitude : long,
             })
+            console.log("===================================================");
+            // console.log(existRecord);
+            console.log("Exist Len :"+existRecord.length);
+            console.log("===================================================");
             if(existRecord.length > 0){
                 res.status(200).json({ isSuccess: true , Data: existRecord , Message: "Location not Change"});
             }else{
