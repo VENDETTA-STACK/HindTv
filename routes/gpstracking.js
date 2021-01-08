@@ -132,8 +132,8 @@ router.post("/", async function(req,res){
             // console.log([latt,longg]);
             return locationNameIs[0].formattedAddress;
         }
-
-        var record = await gpstrackingSchema.find({EmployeeId:req.body.employeeid,Date:req.body.date});
+        //Update GPS Track schema (New Table - New Schema)
+        var record = await gpsDataSchema.find({EmployeeId:req.body.employeeid,Date:req.body.date});
         for(var empIndex = 0;empIndex<record.length;empIndex++){
             var distance = 10000000;
             var emplat = parseFloat(record[empIndex].Latitude);
@@ -145,10 +145,10 @@ router.post("/", async function(req,res){
                 
                 tempdistance = calculatelocation(name,complat,complng,emplat,emplng);
                 //console.log(tempdistance);
-                console.log([emplat,emplng]);
+                // console.log([emplat,emplng]);
                 
                 if(distance>tempdistance && tempdistance>=0){
-                    console.log("in ifffffffffffffffffffff");
+                    // console.log("in ifffffffffffffffffffff");
                     distance=tempdistance;
                     var myLocationNameIs = await getLocationName(emplat,emplng);
                     
