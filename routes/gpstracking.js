@@ -427,6 +427,8 @@ router.post("/getLocation", async function(req,res,next){
                 Longitude:long,
             })
             if(existRecord.length > 0){
+                res.status(200).json({ isSuccess: true , Data: existRecord , Message: "Location not Change"});
+            }else{
                 var record = await new gpstrackingSchema({
                     EmployeeId:employeeid,
                     Date:date,
@@ -464,8 +466,6 @@ router.post("/getLocation", async function(req,res,next){
                 }else{
                     res.status(200).json({ isSuccess: true , Data: lastRecord , Message: "Distance Not greater than 25meter" });
                 }
-            }else{
-                res.status(200).json({ isSuccess: true , Data: existRecord , Message: "Location not Change"});
             }
         }else{
             res.status(200).json({ isSuccess: false , Data: 0 , Message: "Attendace Not Marked" });
