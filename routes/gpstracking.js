@@ -420,43 +420,52 @@ router.post("/getLocation", async function(req,res,next){
                                                     _id : -1 
                                                 })
                                                 .limit(1);
-
-            var record = await new gpstrackingSchema({
+            let existRecord = await gpstrackingSchema.find({
                 EmployeeId:employeeid,
                 Date:date,
-                Time:time,
                 Latitude:lat,
                 Longitude:long,
-            });
-            let lastLat = parseFloat(lastRecord[0].Latitude);
-            let lastLong = parseFloat(lastRecord[0].Longitude);
-            let newLat = parseFloat(lat);
-            let newLong = parseFloat(long);
-           
-            let distance = calculatelocation("name",newLat,newLong,lastLat,lastLong);
-            // console.log(distance);
-            let dataSend = {
-                LastGpsData : lastRecord,
-                NewGpsData : record
-            }
-            // console.log(record[0].length)
-            if(distance > 25){
-                if(record){
-                    record.save();
-                    res.status(200).json({ 
-                        isSuccess: true , 
-                        Data: dataSend , 
-                        Message: "New GpsTracking Data Added" 
-                    });
-                }else{
-                    res.status(200).json({ 
+            })
+            if(existRecord.length > 0){
+                var record = await new gpstrackingSchema({
+                    EmployeeId:employeeid,
+                    Date:date,
+                    Time:time,
+                    Latitude:lat,
+                    Longitude:long,
+                });
+                let lastLat = parseFloat(lastRecord[0].Latitude);
+                let lastLong = parseFloat(lastRecord[0].Longitude);
+                let newLat = parseFloat(lat);
+                let newLong = parseFloat(long);
+               
+                let distance = calculatelocation("name",newLat,newLong,lastLat,lastLong);
+                // console.log(distance);
+                let dataSend = {
+                    LastGpsData : lastRecord,
+                    NewGpsData : record
+                }
+                // console.log(record[0].length)
+                if(distance > 25){
+                    if(record){
+                        record.save();
+                        res.status(200).json({ 
                             isSuccess: true , 
-                            Data: 0 , 
-                            Message: "Data not added" 
+                            Data: dataSend , 
+                            Message: "New GpsTracking Data Added" 
                         });
+                    }else{
+                        res.status(200).json({ 
+                                isSuccess: true , 
+                                Data: 0 , 
+                                Message: "Data not added" 
+                            });
+                    }
+                }else{
+                    res.status(200).json({ isSuccess: true , Data: lastRecord , Message: "Distance Not greater than 25meter" });
                 }
             }else{
-                res.status(200).json({ isSuccess: true , Data: lastRecord , Message: "Distance Not greater than 25meter" });
+                res.status(200).json({ isSuccess: true , Data: existRecord , Message: "Location not Change"});
             }
         }else{
             res.status(200).json({ isSuccess: false , Data: 0 , Message: "Attendace Not Marked" });
