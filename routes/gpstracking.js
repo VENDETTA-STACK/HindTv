@@ -411,9 +411,9 @@ router.post("/getLocation", async function(req,res,next){
     // console.log(employee);
     try {
         if(employee.length == 1){
-            // console.log(date);
+            
             let getDate = String(date) + "T00:00:00.000Z";
-            // console.log(getDate);
+        
             let lastRecord = await gpstrackingSchema.find({ EmployeeId: employeeid , Date: getDate })
                                                 .sort({
                                                     // Date : -1,
@@ -423,10 +423,12 @@ router.post("/getLocation", async function(req,res,next){
                                                 .limit(1);
 
             let existRecord = await gpstrackingSchema.find({
-                EmployeeId : lastRecord[0].EmployeeId,
-                Date : lastRecord[0].Date,
-                Latitude : lat,
-                Longitude : long,
+                $and: [
+                    {EmployeeId : lastRecord[0].EmployeeId},
+                    {Date : lastRecord[0].Date},
+                    {Latitude : lat},
+                    {Longitude : long},
+                ]
             })
             .sort({
                 _id: -1,
