@@ -422,7 +422,7 @@ router.post("/getLocation", async function(req,res,next){
                                                 .limit(1);
             let existRecord = await gpstrackingSchema.find({
                 EmployeeId:employeeid,
-                Date:date,
+                Date:getDate,
                 Latitude:lat,
                 Longitude:long,
             })
