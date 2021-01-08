@@ -12,6 +12,7 @@ const geolib = require("geolib");
 const { replaceOne, count } = require("../models/gpstracking.model");
 var NodeGeocoder = require('node-geocoder');
 const { get } = require("../app");
+let gpsDataSchema = require('../models/gpsTrackModel');
 
 /*Importing Modules */
 
@@ -286,7 +287,7 @@ router.post("/getLastTrackRecord", async function(req,res,next){
     date = date.toISOString().split("T")[0];
     console.log(date);
     try {
-        let lastRecord = await gpstrackingSchema.find({ EmployeeId: EmployeeId , Date: date })
+        let lastRecord = await gpsDataSchema.find({ EmployeeId: EmployeeId , Date: date })
                                                 .sort({
                                                     Date : -1,
                                                     Time : -1
@@ -338,7 +339,7 @@ router.post("/getLocation", async function(req,res,next){
             
             let getDate = String(date) + "T00:00:00.000Z";
             // console.log(getDate);
-            let lastRecord = await gpstrackingSchema.find({ EmployeeId: employeeid , Date: getDate })
+            let lastRecord = await gpsDataSchema.find({ EmployeeId: employeeid , Date: getDate })
                                                 .sort({
                                                     Date : -1,
                                                     Time : -1,
@@ -346,26 +347,52 @@ router.post("/getLocation", async function(req,res,next){
                                                 })
                                                 .limit(1);
             // console.log(lastRecord);
-            let existRecord = await gpstrackingSchema.find({
-                $and: [
-                    {EmployeeId : lastRecord[0].EmployeeId},
-                    {Date : lastRecord[0].Date},
-                    {Latitude : lat},
-                    {Longitude : long},
-                ]
-            })
-            .sort({
-                _id: -1,
-            })
-            .limit(1);
+            let existRecord;
+            if(lastRecord.length > 0){
+                existRecord = await gpsDataSchema.find({
+                    $and: [
+                        {EmployeeId : lastRecord[0].EmployeeId},
+                        {Date : lastRecord[0].Date},
+                        {Latitude : lat},
+                        {Longitude : long},
+                    ]
+                })
+                .sort({
+                    _id: -1,
+                })
+                .limit(1);
+            }else{
+                let record = await new gpsDataSchema({
+                    EmployeeId:employeeid,
+                    Date:date,
+                    Time:time,
+                    Latitude:lat,
+                    Longitude:long,
+                });
+                if(record != null){
+                    record.save();
+                    res.status(200).json({ 
+                        isSuccess: true , 
+                        Data: record , 
+                        Message: "New GpsTracking Data Added" 
+                    });
+                }else{
+                    res.status(200).json({ 
+                            isSuccess: true , 
+                            Data: 0 , 
+                            Message: "Data not added" 
+                        });
+                }
+            }
             console.log("===================================================");
             // console.log(existRecord);
-            console.log("Exist Len :"+existRecord.length);
+            // console.log("Exist Len :"+existRecord.length);
             console.log("===================================================");
             if(existRecord.length == 1){
                 res.status(200).json({ isSuccess: true , Data: existRecord , Message: "Location not Change"});
             }else{
-                var record = await new gpstrackingSchema({
+                console.log("sdnj")
+                let record = await new gpsDataSchema({
                     EmployeeId:employeeid,
                     Date:date,
                     Time:time,
