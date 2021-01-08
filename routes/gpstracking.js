@@ -337,15 +337,15 @@ router.post("/getLocation", async function(req,res,next){
         if(employee.length == 1){
             
             let getDate = String(date) + "T00:00:00.000Z";
-        
+            // console.log(getDate);
             let lastRecord = await gpstrackingSchema.find({ EmployeeId: employeeid , Date: getDate })
                                                 .sort({
                                                     Date : -1,
                                                     Time : -1,
                                                     _id : -1 
                                                 })
-                                                // .limit(1);
-            console.log(lastRecord);
+                                                .limit(1);
+            // console.log(lastRecord);
             let existRecord = await gpstrackingSchema.find({
                 $and: [
                     {EmployeeId : lastRecord[0].EmployeeId},
@@ -385,7 +385,7 @@ router.post("/getLocation", async function(req,res,next){
                 }
                 // console.log(record[0].length)
                 if(distance > 25){
-                    if(record){
+                    if(record != null){
                         record.save();
                         res.status(200).json({ 
                             isSuccess: true , 
